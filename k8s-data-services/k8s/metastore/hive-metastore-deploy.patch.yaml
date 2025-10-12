@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hive-metastore
+  namespace: metastore
+spec:
+  template:
+    spec:
+      volumes:
+        - name: pgdrv
+          emptyDir: {}
+      initContainers:
+        - name: fetch-pg-driver
+          image: curlimages/curl:8.7.1
+          command: ["sh","-lc"]
+          args:
+            - >
+              curl -fSL https://repo1.maven.org/maven2/org/postgresql/postgresql/42.7.3/postgresql-42.7.3.jar
+              -o /jars/postgresql.jar
+          volumeMounts:
+            - name: pgdrv
+              mountPath: /jars
+      containers:
+        - name: hive-metastore
+          volumeMounts:
+            - name: pgdrv
+              mountPath: /opt/hive/lib
+          env:
+            - name: HIVE_AUX_JARS_PATH
+              value: /opt/hive/lib/postgresql.jar
