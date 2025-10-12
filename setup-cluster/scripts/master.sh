@@ -13,6 +13,7 @@ sudo chown ubuntu:ubuntu ${HOME_DIR}/.kube/config
 # Calico operator (v3.30.x)
 sudo -u ubuntu kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.28.3/manifests/operator-crds.yaml
 sudo -u ubuntu kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.28.3/manifests/tigera-operator.yaml
+sudo -u ubuntu kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.28.3/manifests/calico.yaml
 
 # Sinh lệnh join
 kubeadm token create --print-join-command | tee ${HOME_DIR}/join-command.txt
