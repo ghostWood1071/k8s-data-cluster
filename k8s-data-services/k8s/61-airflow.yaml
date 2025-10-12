@@ -1,0 +1,152 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: airflow-webserver
+spec:
+  ports:
+    - port: 8080
+      targetPort: 8080
+  selector:
+    app: airflow-webserver
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: airflow-webserver
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: airflow-webserver
+  template:
+    metadata:
+      labels:
+        app: airflow-webserver
+    spec:
+      containers:
+        - name: webserver
+          image: apache-airflow:2.7.3-java11
+          envFrom:
+            - configMapRef:
+                name: airflow-env
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: dags
+              mountPath: /opt/airflow/dags
+            - name: logs
+              mountPath: /opt/airflow/logs
+            - name: jobs
+              mountPath: /opt/airflow/jobs
+      volumes:
+        - name: dags
+          emptyDir: {}
+        - name: logs
+          emptyDir: {}
+        - name: jobs
+          emptyDir: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: airflow-scheduler
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: airflow-scheduler
+  template:
+    metadata:
+      labels:
+        app: airflow-scheduler
+    spec:
+      containers:
+        - name: scheduler
+          image: apache-airflow:2.7.3-java11
+          envFrom:
+            - configMapRef:
+                name: airflow-env
+          volumeMounts:
+            - name: dags
+              mountPath: /opt/airflow/dags
+            - name: logs
+              mountPath: /opt/airflow/logs
+            - name: jobs
+              mountPath: /opt/airflow/jobs
+      volumes:
+        - name: dags
+          emptyDir: {}
+        - name: logs
+          emptyDir: {}
+        - name: jobs
+          emptyDir: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: airflow-worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: airflow-worker
+  template:
+    metadata:
+      labels:
+        app: airflow-worker
+    spec:
+      containers:
+        - name: worker
+          image: apache-airflow:2.7.3-java11
+          envFrom:
+            - configMapRef:
+                name: airflow-env
+          volumeMounts:
+            - name: dags
+              mountPath: /opt/airflow/dags
+            - name: logs
+              mountPath: /opt/airflow/logs
+            - name: jobs
+              mountPath: /opt/airflow/jobs
+      volumes:
+        - name: dags
+          emptyDir: {}
+        - name: logs
+          emptyDir: {}
+        - name: jobs
+          emptyDir: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: airflow-triggerer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: airflow-triggerer
+  template:
+    metadata:
+      labels:
+        app: airflow-triggerer
+    spec:
+      containers:
+        - name: triggerer
+          image: apache-airflow:2.7.3-java11
+          envFrom:
+            - configMapRef:
+                name: airflow-env
+          volumeMounts:
+            - name: dags
+              mountPath: /opt/airflow/dags
+            - name: logs
+              mountPath: /opt/airflow/logs
+            - name: jobs
+              mountPath: /opt/airflow/jobs
+      volumes:
+        - name: dags
+          emptyDir: {}
+        - name: logs
+          emptyDir: {}
+        - name: jobs
+          emptyDir: {}

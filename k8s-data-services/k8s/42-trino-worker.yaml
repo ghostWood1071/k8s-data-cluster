@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: trino-worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: trino-worker
+  template:
+    metadata:
+      labels:
+        app: trino-worker
+    spec:
+      containers:
+        - name: trino
+          image: trinodb/trino:441
+          volumeMounts:
+            - name: trino-config
+              mountPath: /etc/trino
+      volumes:
+        - name: trino-config
+          configMap:
+            name: trino-config
+            items:
+              - key: node.properties
+                path: node.properties
+              - key: jvm.config
+                path: jvm.config
+              - key: config.properties
+                path: config.properties
+              - key: catalog/delta.properties
+                path: catalog/delta.properties

@@ -1,0 +1,18 @@
+#cloud-config
+package_update: true
+
+write_files:
+  - path: /opt/setup/minio.sh
+    permissions: '0755'
+    owner: root:root
+    content: |
+        ${MINIO_SH}
+  - path: /etc/minio.env
+    permissions: '0644'
+    owner: root:root
+    content: |
+        MINIO_ROOT_USER=${MINIO_USER}
+        MINIO_ROOT_PASSWORD=${MINIO_PASS}
+
+runcmd:
+  - [ bash, -c, "/opt/setup/minio.sh" ]
