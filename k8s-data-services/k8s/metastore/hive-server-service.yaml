@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: hive-server
+  namespace: metastore
+spec:
+  selector:
+    app: hive-server
+    role: hive-server
+  ports:
+  - port: 10000
+    targetPort: 10000
+    name: jdbc

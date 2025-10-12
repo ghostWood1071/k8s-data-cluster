@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: airflow-web
+  namespace: orchestration
+spec:
+  selector:
+    app: airflow-web
+    role: web
+  ports:
+  - port: 8080
+    targetPort: 8080
+    name: http

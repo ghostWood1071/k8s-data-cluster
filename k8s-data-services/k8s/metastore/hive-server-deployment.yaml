@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hive-server
+  namespace: metastore
+spec:
+  selector:
+    matchLabels: &id001
+      app: hive-server
+      role: hive-server
+  template:
+    metadata:
+      labels: *id001
+    spec:
+      containers:
+      - name: hive-server
+        image: apache/hive:4.0.0
+        ports:
+        - containerPort: 10000
+        volumeMounts:
+        - name: hive-site
+          mountPath: /opt/hive/conf
+        args:
+        - --service
+        - hiveserver2
+      volumes:
+      - name: hive-site
+        configMap:
+          name: hive-site
+  replicas: 1

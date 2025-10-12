@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: metastore
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: query
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: compute
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: orchestration

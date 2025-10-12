@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: trino-worker
+  namespace: query
+spec:
+  selector:
+    matchLabels: &id001
+      app: trino-worker
+      role: worker
+  template:
+    metadata:
+      labels: *id001
+    spec:
+      containers:
+      - name: trino-worker
+        image: trinodb/trino:441
+        env:
+        - name: COORDINATOR
+          value: 'false'
+        - name: DISCOVERY_URI
+          value: http://trino.query.svc.cluster.local:8080
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: role
+                operator: In
+                values:
+                - worker
+            topologyKey: kubernetes.io/hostname
+  replicas: 2
