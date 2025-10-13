@@ -23,6 +23,21 @@ spec:
         args:
         - --service
         - hiveserver2
+        env:
+          - name: SERVICE_NAME
+            value: metastore
+          - name: HIVE_METASTORE_DB_TYPE
+            value: postgres
+          - name: HIVE_METASTORE_USER
+            value: hive
+          - name: HIVE_METASTORE_PASSWORD
+            value: hive
+          - name: HIVE_METASTORE_DB_HOST
+            value: postgres-metastore
+          - name: HIVE_METASTORE_DB_NAME
+            value: metastore
+          - name: DB_DRIVER
+            value: postgres
       volumes:
       - name: hive-site
         configMap:
