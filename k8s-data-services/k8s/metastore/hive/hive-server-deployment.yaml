@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: hive-server
-        image: apache/hive:4.0.0
+        image: ghostwood/hive:4.0.0
         ports:
         - containerPort: 10000
         volumeMounts:
