@@ -6,8 +6,52 @@ metadata:
   labels:
     app: hive
 data:
-  hive-site.xml: "<?xml version=\"1.0\"?>\n<configuration>\n  <property><name>javax.jdo.option.ConnectionURL</name><value>jdbc:postgresql://postgres.metastore.svc.cluster.local:5432/metastore</value></property>\n\
-    \  <property><name>javax.jdo.option.ConnectionDriverName</name><value>org.postgresql.Driver</value></property>\n\
-    \  <property><name>javax.jdo.option.ConnectionUserName</name><value>hive</value></property>\n\
-    \  <property><name>javax.jdo.option.ConnectionPassword</name><value>hive</value></property>\n\
-    </configuration>\n"
+  hive-site.xml: |-
+    <configuration>
+    	<!-- Kết nối Metastore -->
+    	<property>
+    		<name>javax.jdo.option.ConnectionURL</name>
+    		<value>jdbc:postgresql://postgres.metastore.svc.cluster.local:5432/metastore</value>
+    	</property>
+    	<property>
+    		<name>javax.jdo.option.ConnectionDriverName</name>
+    		<value>org.postgresql.Driver</value>
+    	</property>
+    	<property>
+    		<name>javax.jdo.option.ConnectionUserName</name>
+    		<value>hive</value>
+    	</property>
+    	<property>
+    		<name>javax.jdo.option.ConnectionPassword</name>
+    		<value>hive</value>
+    	</property>
+    	<property>
+    		<name>fs.s3a.access.key</name>
+    		<value>minio</value>
+    	</property>
+    	<property>
+    		<name>fs.s3a.secret.key</name>
+    		<value>minio@123</value>
+    	</property>
+    	<property>
+    		<name>fs.s3a.endpoint</name>
+    		<value>http://minio:9000</value>
+    	</property>
+    	<property>
+    		<name>fs.s3a.path.style.access</name>
+    		<value>true</value>
+    	</property>
+    	<property>
+    		<name>fs.s3a.impl</name>
+    		<value>org.apache.hadoop.fs.s3a.S3AFileSystem</value>
+    	</property>
+    	<property>
+    		<name>hive.metastore.db.type</name>
+    		<value>postgres</value>
+    		<description>Metastore DB type: derby, mysql, postgres, oracle, mssql</description>
+    	</property>
+    	<property>
+    		<name>hive.metastore.warehouse.dir</name>
+    		<value>s3a://warehouse/</value>
+    	</property>
+    </configuration>
