@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: be
+  namespace: starrocks
+spec:
+  serviceName: be-service
+  replicas: 3
+  selector:
+    matchLabels:
+      app: be
+  template:
+    metadata:
+      labels:
+        app: be
+    spec:
+      containers:
+      - name: be
+        image: starrocks/be-ubuntu:3.3-latest
+        ports:
+        - containerPort: 8040  # web
+        - containerPort: 9050  # heartbeat
+        - containerPort: 9060  # brpc
+        - containerPort: 8060  # be_service
+        env:
+        - name: BE_SERVERS
+          value: "be-0.be-service.starrocks.svc.cluster.local:9050,be-1.be-service.starrocks.svc.cluster.local:9050,be-2.be-service.starrocks.svc.cluster.local:9050"
+        volumeMounts:
+        - name: be-conf
+          mountPath: /opt/starrocks/be/conf
+        - name: be-storage
+          mountPath: /opt/starrocks/be/storage
+      volumes:
+      - name: be-conf
+        configMap:
+          name: starrocks-config
+          items:
+            - key: be.conf
+              path: be.conf
+  volumeClaimTemplates:
+  - metadata:
+      name: be-storage
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 10Gi

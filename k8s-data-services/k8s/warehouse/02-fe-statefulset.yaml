@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: fe
+  namespace: starrocks
+spec:
+  serviceName: fe-service
+  replicas: 3
+  selector:
+    matchLabels:
+      app: fe
+  template:
+    metadata:
+      labels:
+        app: fe
+    spec:
+      containers:
+      - name: fe
+        image: starrocks/fe-ubuntu:3.3-latest
+        ports:
+        - containerPort: 8030  # web
+        - containerPort: 9030  # mysql
+        - containerPort: 9010  # editlog
+        env:
+        - name: FE_SERVERS
+          value: "fe-0.fe-service.starrocks.svc.cluster.local:9010,fe-1.fe-service.starrocks.svc.cluster.local:9010,fe-2.fe-service.starrocks.svc.cluster.local:9010"
+        volumeMounts:
+        - name: fe-conf
+          mountPath: /opt/starrocks/fe/conf
+        - name: fe-storage
+          mountPath: /opt/starrocks/fe/meta
+      volumes:
+      - name: fe-conf
+        configMap:
+          name: starrocks-config
+          items:
+            - key: fe.conf
+              path: fe.conf
+  volumeClaimTemplates:
+  - metadata:
+      name: fe-storage
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 5Gi
