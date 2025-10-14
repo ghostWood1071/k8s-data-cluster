@@ -11,5 +11,5 @@ spec:
   ports:
   - port: 10000
     targetPort: 10000
-    nodePort: 10000
+    nodePort: 31000
     name: jdbc
