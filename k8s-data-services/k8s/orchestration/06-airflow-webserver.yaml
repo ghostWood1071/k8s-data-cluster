@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: airflow-webserver
-  namespace: airflow
+  namespace: orchestration
 spec:
   replicas: 1
   selector:

@@ -2,7 +2,7 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: airflow-init
-  namespace: airflow
+  namespace: orchestration
 spec:
   template:
     spec:
