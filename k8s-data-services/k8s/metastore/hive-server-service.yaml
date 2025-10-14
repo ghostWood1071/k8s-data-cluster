@@ -4,10 +4,12 @@ metadata:
   name: hive-server
   namespace: metastore
 spec:
+  type: NodePort
   selector:
     app: hive-server
     role: hive-server
   ports:
   - port: 10000
     targetPort: 10000
+    nodePort: 10000
     name: jdbc

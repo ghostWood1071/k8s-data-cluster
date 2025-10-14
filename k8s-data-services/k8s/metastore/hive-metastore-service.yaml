@@ -4,10 +4,12 @@ metadata:
   name: hive-metastore
   namespace: metastore
 spec:
+  type: NodePort
   selector:
     app: hive-metastore
     role: hive-metastore
   ports:
   - port: 9083
     targetPort: 9083
+    nodePort: 9083
     name: thrift
