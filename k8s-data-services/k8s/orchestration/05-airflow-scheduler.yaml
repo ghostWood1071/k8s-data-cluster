@@ -30,7 +30,7 @@ spec:
               command: ["bash", "-c", "airflow jobs check --job-type SchedulerJob --hostname $(hostname)"]
             initialDelaySeconds: 15
             periodSeconds: 30
-    volumes:
-      - name: dags
-        persistentVolumeClaim:
-          claimName: airflow-dags-pvc
+      volumes:
+        - name: dags
+          persistentVolumeClaim:
+            claimName: airflow-dags-pvc
