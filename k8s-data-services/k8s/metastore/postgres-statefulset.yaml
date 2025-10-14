@@ -4,32 +4,38 @@ metadata:
   name: postgres
   namespace: metastore
 spec:
+  serviceName: postgres
+  replicas: 1
   selector:
-    matchLabels: &id001
+    matchLabels:
       app: postgres
-      role: db
   template:
     metadata:
-      labels: *id001
+      labels:
+        app: postgres
     spec:
       containers:
       - name: postgres
-        image: postgres:14
-        env:
-        - name: POSTGRES_USER
-          valueFrom:
-            secretKeyRef:
-              name: postgres-secret
-              key: POSTGRES_USER
-        - name: POSTGRES_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: postgres-secret
-              key: POSTGRES_PASSWORD
-        - name: POSTGRES_DB
-          valueFrom:
-            secretKeyRef:
-              name: postgres-secret
-              key: POSTGRES_DB_METASTORE
+        image: postgres:15
         ports:
         - containerPort: 5432
+        envFrom:
+          - secretRef:
+              name: postgres-secret
+        volumeMounts:
+          - name: postgres-data
+            mountPath: /var/lib/postgresql/data
+          - name: init-script
+            mountPath: /docker-entrypoint-initdb.d
+      volumes:
+        - name: init-script
+          configMap:
+            name: postgres-init-script
+  volumeClaimTemplates:
+  - metadata:
+      name: postgres-data
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 2Gi
