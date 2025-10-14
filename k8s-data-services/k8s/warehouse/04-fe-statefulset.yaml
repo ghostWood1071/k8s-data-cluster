@@ -1,3 +1,29 @@
+# ---- Headless Service cho StatefulSet FE ----
+apiVersion: v1
+kind: Service
+metadata:
+  name: fe-service
+  namespace: starrocks
+  labels:
+    app: fe
+spec:
+  clusterIP: None
+  publishNotReadyAddresses: true
+  selector:
+    app: fe
+  ports:
+    - name: web
+      port: 8030
+      targetPort: 8030
+    - name: mysql
+      port: 9030
+      targetPort: 9030
+    - name: editlog
+      port: 9010
+      targetPort: 9010
+
+---
+# ---- StatefulSet FE ----
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -6,6 +32,7 @@ metadata:
 spec:
   serviceName: fe-service
   replicas: 3
+  podManagementPolicy: Parallel
   selector:
     matchLabels:
       app: fe
@@ -14,6 +41,8 @@ spec:
       labels:
         app: fe
     spec:
+      securityContext:
+        fsGroup: 1000                # đảm bảo volume có quyền ghi nếu container không chạy root
       containers:
       - name: fe
         image: starrocks/fe-ubuntu:3.3-latest
@@ -44,4 +73,4 @@ spec:
       resources:
         requests:
           storage: 2Gi
-      storageClassName: local-storage
+      storageClassName: local-path     

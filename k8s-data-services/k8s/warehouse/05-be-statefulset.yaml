@@ -1,3 +1,32 @@
+# ---- Headless Service cho StatefulSet ----
+apiVersion: v1
+kind: Service
+metadata:
+  name: be-service
+  namespace: starrocks
+  labels:
+    app: be
+spec:
+  clusterIP: None
+  publishNotReadyAddresses: true
+  selector:
+    app: be
+  ports:
+    - name: web
+      port: 8040
+      targetPort: 8040
+    - name: heartbeat
+      port: 9050
+      targetPort: 9050
+    - name: brpc
+      port: 9060
+      targetPort: 9060
+    - name: be-service
+      port: 8060
+      targetPort: 8060
+
+---
+# ---- StatefulSet ----
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -6,6 +35,7 @@ metadata:
 spec:
   serviceName: be-service
   replicas: 3
+  podManagementPolicy: Parallel
   selector:
     matchLabels:
       app: be
@@ -14,6 +44,8 @@ spec:
       labels:
         app: be
     spec:
+      securityContext:
+        fsGroup: 1000                 # giúp volume có quyền ghi nếu container chạy UID khác
       containers:
       - name: be
         image: starrocks/be-ubuntu:3.3-latest
@@ -45,4 +77,3 @@ spec:
       resources:
         requests:
           storage: 5Gi
-      storageClassName: local-storage
