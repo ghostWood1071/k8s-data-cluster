@@ -8,6 +8,9 @@ data:
     #!/bin/bash
     set -e
     psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" <<-EOSQL
-        CREATE DATABASE hive;
+        CREATE DATABASE metastore;
+    EOSQL
+    psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" <<-EOSQL
         CREATE DATABASE airflow;
     EOSQL
+    
