@@ -1,80 +1,365 @@
-# ---- Headless Service cho StatefulSet ----
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: starrocks
+---
+# StorageClass cho Local PV (không provisioner động, chờ consumer trước khi bind)
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: local-storage
+provisioner: kubernetes.io/no-provisioner
+volumeBindingMode: WaitForFirstConsumer
+---
+# ===== PersistentVolumes cho FE (3 cái, mỗi cái trên 1 node) =====
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: fe-pv-0
+spec:
+  capacity: { storage: 5Gi }
+  accessModes: [ "ReadWriteOnce" ]
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: local-storage
+  local:
+    path: /mnt/starrocks/fe-0
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values: ["node1"]   # TODO: thay hostname thật
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: fe-pv-1
+spec:
+  capacity: { storage: 5Gi }
+  accessModes: [ "ReadWriteOnce" ]
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: local-storage
+  local:
+    path: /mnt/starrocks/fe-1
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values: ["node2"]   # TODO
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: fe-pv-2
+spec:
+  capacity: { storage: 5Gi }
+  accessModes: [ "ReadWriteOnce" ]
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: local-storage
+  local:
+    path: /mnt/starrocks/fe-2
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values: ["node3"]   # TODO
+---
+# ===== PersistentVolumes cho BE (3 cái, mỗi cái trên 1 node) =====
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: be-pv-0
+spec:
+  capacity: { storage: 5Gi }
+  accessModes: [ "ReadWriteOnce" ]
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: local-storage
+  local:
+    path: /mnt/starrocks/be-0
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values: ["node1"]   # TODO
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: be-pv-1
+spec:
+  capacity: { storage: 5Gi }
+  accessModes: [ "ReadWriteOnce" ]
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: local-storage
+  local:
+    path: /mnt/starrocks/be-1
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values: ["node2"]   # TODO
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: be-pv-2
+spec:
+  capacity: { storage: 5Gi }
+  accessModes: [ "ReadWriteOnce" ]
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: local-storage
+  local:
+    path: /mnt/starrocks/be-2
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values: ["node3"]   # TODO
+---
+# ConfigMap: fe.conf, be.conf và script bootstrap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: starrocks-config
+  namespace: starrocks
+data:
+  fe.conf: |
+    # FE ports
+    http_port = 8030
+    rpc_port = 9020
+    query_port = 9030
+    edit_log_port = 9010
+    # Metadata dir trong PVC
+    meta_dir = /opt/starrocks/fe/meta
+    # Nếu dùng FQDN trong K8s có thể bỏ priority_networks (StarRocks support FQDN)
+    # default_replication_num = 3  # để mặc định nếu BE>=3
+  be.conf: |
+    be_port = 9060
+    be_http_port = 8040
+    heartbeat_service_port = 9050
+    brpc_port = 8060
+    # Data dir trong PVC (có thể nhiều path, ngăn cách dấu phẩy)
+    storage_root_path = /opt/starrocks/be/storage
+  fe-bootstrap.sh: |
+    #!/usr/bin/env bash
+    set -euo pipefail
+    HOSTNAME="$(hostname)"
+    ORD="${HOSTNAME##*-}"        # lấy ordinal từ pod name fe-0/1/2
+    LEADER_FQDN="fe-0.fe-hs.starrocks.svc.cluster.local"
+    EDIT_LOG_PORT="9010"
+    MYSQL_PORT="9030"
+    # Chờ leader FE lên (chỉ cần cho follower)
+    if [[ "$ORD" != "0" ]]; then
+      echo "[FE-Follower] Waiting for leader MySQL port..."
+      until nc -z "$LEADER_FQDN" "$MYSQL_PORT"; do sleep 2; done
+      # Thêm follower này vào cluster (idempotent)
+      echo "[FE-Follower] ALTER SYSTEM ADD FOLLOWER ..."
+      mysql -h "$LEADER_FQDN" -P "$MYSQL_PORT" -uroot -e \
+        "ALTER SYSTEM ADD FOLLOWER \"fe-${ORD}.fe-hs.starrocks.svc.cluster.local:${EDIT_LOG_PORT}\";" \
+        || true
+      # Khởi động follower với --helper để sync metadata
+      exec /opt/starrocks/fe/bin/start_fe.sh --helper ${LEADER_FQDN}:${EDIT_LOG_PORT} --host_type FQDN
+    else
+      # Leader start bình thường
+      exec /opt/starrocks/fe/bin/start_fe.sh --host_type FQDN
+    fi
+  be-bootstrap.sh: |
+    #!/usr/bin/env bash
+    set -euo pipefail
+    LEADER_FQDN="fe-0.fe-hs.starrocks.svc.cluster.local"
+    MYSQL_PORT="9030"
+    # Chờ FE leader sẵn sàng MySQL
+    echo "[BE] Waiting for FE leader MySQL..."
+    until nc -z "$LEADER_FQDN" "$MYSQL_PORT"; do sleep 2; done
+    # Tự động đăng ký BE này vào cluster (idempotent)
+    THIS_BE="$(hostname).be-hs.starrocks.svc.cluster.local:9050"
+    echo "[BE] ALTER SYSTEM ADD BACKEND ${THIS_BE}"
+    mysql -h "$LEADER_FQDN" -P "$MYSQL_PORT" -uroot -e \
+      "ALTER SYSTEM ADD BACKEND \"${THIS_BE}\";" || true
+    # Start BE
+    exec /opt/starrocks/be/bin/start_be.sh
+---
+# Service cho FE: headless (ổn định DNS) + Service truy cập
 apiVersion: v1
 kind: Service
 metadata:
-  name: be-service
+  name: fe-hs
   namespace: starrocks
-  labels:
-    app: be
 spec:
   clusterIP: None
-  publishNotReadyAddresses: true
-  selector:
-    app: be
+  selector: { app: starrocks-fe }
   ports:
-    - name: web
-      port: 8040
-      targetPort: 8040
-    - name: heartbeat
-      port: 9050
-      targetPort: 9050
-    - name: brpc
-      port: 9060
-      targetPort: 9060
-    - name: be-service
-      port: 8060
-      targetPort: 8060
-
+  - name: editlog
+    port: 9010
+  - name: http
+    port: 8030
+  - name: mysql
+    port: 9030
 ---
-# ---- StatefulSet ----
+apiVersion: v1
+kind: Service
+metadata:
+  name: fe
+  namespace: starrocks
+spec:
+  selector: { app: starrocks-fe }
+  ports:
+  - name: mysql
+    port: 9030
+    targetPort: 9030
+  - name: http
+    port: 8030
+    targetPort: 8030
+  type: ClusterIP
+---
+# Service cho BE: headless
+apiVersion: v1
+kind: Service
+metadata:
+  name: be-hs
+  namespace: starrocks
+spec:
+  clusterIP: None
+  selector: { app: starrocks-be }
+  ports:
+  - name: heartbeat
+    port: 9050
+  - name: http
+    port: 8040
+---
+# ===== FE StatefulSet (replicas=3) =====
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: fe
+  namespace: starrocks
+  labels: { app: starrocks-fe }
+spec:
+  serviceName: fe-hs
+  replicas: 3
+  podManagementPolicy: OrderedReady
+  selector:
+    matchLabels: { app: starrocks-fe }
+  template:
+    metadata:
+      labels: { app: starrocks-fe }
+    spec:
+      # Một số môi trường cần quyền root cho image StarRocks
+      securityContext:
+        runAsUser: 0
+      containers:
+      - name: fe
+        image: starrocks/fe-ubuntu:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - { containerPort: 9010, name: editlog }
+        - { containerPort: 8030, name: http }
+        - { containerPort: 9030, name: mysql }
+        env:
+        - name: JAVA_HOME
+          value: /usr/lib/jvm/java-11-openjdk-amd64
+        volumeMounts:
+        - { name: fe-conf, mountPath: /opt/starrocks/fe/conf }
+        - { name: fe-data, mountPath: /opt/starrocks/fe/meta }
+        command: ["/bin/bash","-lc","/opt/bootstrap/fe-bootstrap.sh --daemon && tail -f /dev/null"]
+      initContainers:
+      - name: init-tools
+        image: mysql:8.0
+        command: ["/bin/sh","-c","apt-get update || true; apt-get install -y netcat-openbsd || true"]
+        volumeMounts:
+        - { name: bootstrap, mountPath: /opt/bootstrap }
+      volumes:
+      - name: fe-conf
+        configMap:
+          name: starrocks-config
+          items: [{ key: fe.conf, path: fe.conf }]
+      - name: bootstrap
+        configMap:
+          name: starrocks-config
+          defaultMode: 0755
+          items: [{ key: fe-bootstrap.sh, path: fe-bootstrap.sh }]
+      terminationGracePeriodSeconds: 30
+  volumeClaimTemplates:
+  - metadata:
+      name: fe-data
+      annotations:
+        volume.kubernetes.io/storage-class: local-storage
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: local-storage
+      resources:
+        requests:
+          storage: 5Gi
+---
+# ===== BE StatefulSet (replicas=3) =====
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: be
   namespace: starrocks
+  labels: { app: starrocks-be }
 spec:
-  serviceName: be-service
+  serviceName: be-hs
   replicas: 3
   podManagementPolicy: Parallel
   selector:
-    matchLabels:
-      app: be
+    matchLabels: { app: starrocks-be }
   template:
     metadata:
-      labels:
-        app: be
+      labels: { app: starrocks-be }
     spec:
       securityContext:
-        fsGroup: 1000                 # giúp volume có quyền ghi nếu container chạy UID khác
+        runAsUser: 0
       containers:
       - name: be
-        image: starrocks/be-ubuntu:3.3-latest
+        image: starrocks/be-ubuntu:latest
+        imagePullPolicy: IfNotPresent
         ports:
-        - containerPort: 8040  # web
-        - containerPort: 9050  # heartbeat
-        - containerPort: 9060  # brpc
-        - containerPort: 8060  # be_service
-        env:
-        - name: BE_SERVERS
-          value: "be-0.be-service.starrocks.svc.cluster.local:9050,be-1.be-service.starrocks.svc.cluster.local:9050,be-2.be-service.starrocks.svc.cluster.local:9050"
+        - { containerPort: 9050, name: heartbeat }
+        - { containerPort: 8040, name: http }
+        - { containerPort: 9060, name: beport }
+        - { containerPort: 8060, name: brpc }
         volumeMounts:
-        - name: be-conf
-          mountPath: /opt/starrocks/be/conf
-        - name: be-storage
-          mountPath: /opt/starrocks/be/storage
+        - { name: be-conf, mountPath: /opt/starrocks/be/conf }
+        - { name: be-data, mountPath: /opt/starrocks/be/storage }
+        command: ["/bin/bash","-lc","/opt/bootstrap/be-bootstrap.sh --daemon && tail -f /dev/null"]
+      initContainers:
+      - name: init-tools
+        image: mysql:8.0
+        command: ["/bin/sh","-c","apt-get update || true; apt-get install -y netcat-openbsd || true"]
+        volumeMounts:
+        - { name: bootstrap, mountPath: /opt/bootstrap }
       volumes:
       - name: be-conf
         configMap:
           name: starrocks-config
-          items:
-            - key: be.conf
-              path: be.conf
+          items: [{ key: be.conf, path: be.conf }]
+      - name: bootstrap
+        configMap:
+          name: starrocks-config
+          defaultMode: 0755
+          items: [{ key: be-bootstrap.sh, path: be-bootstrap.sh }]
+      terminationGracePeriodSeconds: 30
   volumeClaimTemplates:
   - metadata:
-      name: be-storage
+      name: be-data
+      annotations:
+        volume.kubernetes.io/storage-class: local-storage
     spec:
       accessModes: [ "ReadWriteOnce" ]
+      storageClassName: local-storage
       resources:
         requests:
           storage: 5Gi
-      storageClassName: local-path     
