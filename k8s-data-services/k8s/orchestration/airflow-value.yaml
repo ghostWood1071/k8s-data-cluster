@@ -1,0 +1,46 @@
+executor: CeleryExecutor
+
+airflow:
+  image:
+    repository: nlhtungg/mbs-poc-airflow
+    tag: "1.0.0"
+  users:
+    - username: admin
+      password: admin
+      role: Admin
+      email: admin@example.com
+
+webserver:
+  service:
+    type: NodePort
+    nodePort: 30081
+  defaultUser:
+    enabled: true
+    role: Admin
+    username: admin
+    password: admin
+
+config:
+  AIRFLOW__CORE__LOAD_EXAMPLES: "False"
+  AIRFLOW__WEBSERVER__EXPOSE_CONFIG: "True"
+  AIRFLOW__WEBSERVER__BASE_URL: "http://localhost:8080"
+
+redis:
+  enabled: true
+
+postgresql:
+  enabled: true
+  auth:
+    username: airflow
+    password: airflow
+    database: airflow
+
+dags:
+  persistence:
+    enabled: true
+    size: 2Gi
+
+logs:
+  persistence:
+    enabled: true
+    size: 2Gi
