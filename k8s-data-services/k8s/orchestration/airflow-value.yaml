@@ -35,11 +35,10 @@ config:
 
 redis:
   enabled: true
-  primary:
-    persistence:
-      enabled: true
-      storageClass: hostpath
-      size: 512Mi
+  persistence:
+    enabled: true
+    storageClassName: hostpath
+    size: 512Mi
 
 postgresql:
   enabled: true
