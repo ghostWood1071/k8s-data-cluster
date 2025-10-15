@@ -8,7 +8,6 @@ spec:
   selector:
     app: airflow-scheduler
   ports:
-    protocol: TCP
-    port: 8793
-    targetPort: 8793
-    nodePort: 30082
+    - port: 8793
+      targetPort: 8793
+      nodePort: 30082
