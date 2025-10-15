@@ -80,8 +80,6 @@ dags:
   persistence:
     enabled: true
     storageClassName: hostpath
-    accessModes:
-      - ReadWriteOnce
     size: 1Gi
 
 # =============================
@@ -91,8 +89,6 @@ logs:
   persistence:
     enabled: true
     storageClassName: hostpath
-    accessModes:
-      - ReadWriteOnce
     size: 2Gi
 
 # =============================
