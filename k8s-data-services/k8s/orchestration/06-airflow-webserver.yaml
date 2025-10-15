@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: webserver
-          image: nlhtungg/mbs-poc-airflow:1.0.0
+          image: ghostwood/airflow-mbs:2.7.3
           command: ["airflow", "webserver"]
           envFrom:
             - secretRef:
