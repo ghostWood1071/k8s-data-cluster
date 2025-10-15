@@ -46,9 +46,11 @@ postgresql:
 dags:
   persistence:
     enabled: true
+    storageClassName: hostpath
     size: 2Gi
 
 logs:
   persistence:
     enabled: true
+    storageClassName: hostpath
     size: 2Gi
