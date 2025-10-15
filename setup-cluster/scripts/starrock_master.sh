@@ -11,7 +11,7 @@ mkdir -p ${INSTALL_DIR}
 cd ${INSTALL_DIR}
 wget -q https://releases.starrocks.io/starrocks/StarRocks-${STARROCKS_VERSION}-ubuntu-amd64.tar.gz -O starrocks.tar.gz
 tar -xzf starrocks.tar.gz && rm starrocks.tar.gz
-mv starrocks-* fe
+mv StarRocks-* fe
 cp -r fe be
 
 # --- FE conf ---

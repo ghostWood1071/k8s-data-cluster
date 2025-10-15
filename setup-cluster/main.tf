@@ -332,31 +332,31 @@ resource "aws_instance" "mbs-poc-svc_workers" {
 }
 
 # Service starrock master node
-# resource "aws_instance" "mbs-poc-starrock-svc_master" {
-#   ami                    = local.ami_id
-#   instance_type          = var.starrock_instance_type
-#   subnet_id              = local.subnet_id
-#   key_name               = var.key_name
-#   iam_instance_profile   = aws_iam_instance_profile.ssm_profile.name
-#   vpc_security_group_ids = [aws_security_group.mbs-poc-sg.id]
-#
-#   user_data = local.starrock_master_sh
-#
-#   root_block_device {
-#     volume_type = "gp3"
-#     volume_size = var.starrock_size_gb
-#   }
-#
-#   tags = {
-#     Name = "starrock-master"
-#     Role = "starrock-master"
-#     OS   = "ubuntu-22.04"
-#   }
-# }
-# output "master_private_ip" {
-#   value = aws_instance.mbs-poc-starrock-svc_master.private_ip
-# }
-#
+resource "aws_instance" "mbs-poc-starrock-svc_master" {
+  ami                    = local.ami_id
+  instance_type          = var.starrock_instance_type
+  subnet_id              = local.subnet_id
+  key_name               = var.key_name
+  iam_instance_profile   = aws_iam_instance_profile.ssm_profile.name
+  vpc_security_group_ids = [aws_security_group.mbs-poc-sg.id]
+
+  user_data = local.starrock_master_sh
+
+  root_block_device {
+    volume_type = "gp3"
+    volume_size = var.starrock_size_gb
+  }
+
+  tags = {
+    Name = "starrock-master"
+    Role = "starrock-master"
+    OS   = "ubuntu-22.04"
+  }
+}
+output "master_private_ip" {
+  value = aws_instance.mbs-poc-starrock-svc_master.private_ip
+}
+
 # # Service starrock worker nodes
 # resource "aws_instance" "mbs-poc-starrock-svc_workers" {
 #   count                  = 2
