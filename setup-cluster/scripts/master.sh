@@ -14,8 +14,10 @@ sudo chown ubuntu:ubuntu ${HOME_DIR}/.kube/config
 sudo -u ubuntu kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.28.3/manifests/operator-crds.yaml
 sudo -u ubuntu kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.28.3/manifests/tigera-operator.yaml
 sudo -u ubuntu kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.28.3/manifests/calico.yaml
-
+sudo -u ubuntu kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/local-path-storage.yaml
+sudo -u ubuntu kubectl apply -f https://raw.githubusercontent.com/kubernetes-csi/csi-driver-host-path/master/deploy/kubernetes/hostpath/csi-hostpath-driver.yaml
 # Sinh lệnh join
+
 kubeadm token create --print-join-command | tee ${HOME_DIR}/join-command.txt
 chown ubuntu:ubuntu ${HOME_DIR}/join-command.txt
 
