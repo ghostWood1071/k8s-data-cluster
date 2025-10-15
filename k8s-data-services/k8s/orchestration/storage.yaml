@@ -1,0 +1,67 @@
+# StorageClass cho hostPath
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: hostpath
+provisioner: kubernetes.io/no-provisioner
+volumeBindingMode: WaitForFirstConsumer
+---
+# PV cho Postgres
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-airflow-postgres
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: hostpath
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: /mnt/data/airflow/postgres
+---
+# PV cho Redis
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-airflow-redis
+spec:
+  capacity:
+    storage: 512Mi
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: hostpath
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: /mnt/data/airflow/redis
+---
+# PV cho DAGs
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-airflow-dags
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: hostpath
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: /mnt/data/airflow/dags
+---
+# PV cho Logs
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-airflow-logs
+spec:
+  capacity:
+    storage: 2Gi
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: hostpath
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: /mnt/data/airflow/logs
