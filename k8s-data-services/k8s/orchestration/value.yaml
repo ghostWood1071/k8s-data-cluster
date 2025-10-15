@@ -57,6 +57,9 @@ redis:
 # PostgreSQL configuration
 # =============================
 postgresql:
+  image:
+    repository: postgres
+    tag: "15"
   enabled: true
   auth:
     username: airflow
