@@ -35,6 +35,11 @@ config:
 
 redis:
   enabled: true
+  master:
+    persistence:
+      enabled: true
+      storageClass: hostpath
+      size: 512Mi
 
 postgresql:
   enabled: true
@@ -42,6 +47,11 @@ postgresql:
     username: airflow
     password: airflow
     database: airflow
+  primary:
+    persistence:
+      enabled: true
+      storageClass: hostpath
+      size: 1Gi
 
 dags:
   persistence:
