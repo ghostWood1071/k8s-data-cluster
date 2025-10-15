@@ -2,12 +2,12 @@ apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: postgres-pv
-  namespace: metastore
 spec:
   capacity:
     storage: 2Gi
   accessModes:
     - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
   storageClassName: local-path
   hostPath:
-    path: /mnt/data/postgres  # Thư mục trên node thật
+    path: /mnt/data/postgres
