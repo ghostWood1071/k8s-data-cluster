@@ -21,9 +21,9 @@ webserver:
     password: admin
 
 config:
-  AIRFLOW__CORE__LOAD_EXAMPLES: "False"
-  AIRFLOW__WEBSERVER__EXPOSE_CONFIG: "True"
-  AIRFLOW__WEBSERVER__BASE_URL: "http://localhost:8080"
+  AIRFLOW__CORE__LOAD_EXAMPLES: false
+  AIRFLOW__WEBSERVER__EXPOSE_CONFIG: true
+  AIRFLOW__WEBSERVER__BASE_URL: http://localhost:8080
 
 redis:
   enabled: true
