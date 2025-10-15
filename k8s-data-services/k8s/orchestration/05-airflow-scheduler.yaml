@@ -27,7 +27,7 @@ spec:
             - containerPort: 8793
           env:
             - name: AIRFLOW__CORE__HOSTNAME_CALLABLE
-              value: "lambda: 'airflow-scheduler'"
+              value: "lambda x: 'airflow-scheduler'"
             - name: AIRFLOW__API__AUTH_BACKENDS
               value: "airflow.api.auth.backend.default"
             - name: AIRFLOW__SCHEDULER__ENABLE_HEALTH_CHECK
