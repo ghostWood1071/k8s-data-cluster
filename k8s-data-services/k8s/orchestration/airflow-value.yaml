@@ -32,6 +32,10 @@ config:
     value: "True"
   AIRFLOW__WEBSERVER__BASE_URL:
     value: "http://localhost:8080"
+  AIRFLOW__DATABASE__SQL_ALCHEMY_CONN:
+    value: "postgresql+psycopg2://hive:hive@postgres.metastore.svc.cluster.local:5432/airflow"
+  AIRFLOW__CELERY__RESULT_BACKEND:
+    value: "db+postgresql://hive:hive@postgres.metastore.svc.cluster.local:5432/airflow"
 
 redis:
   enabled: true
@@ -39,18 +43,6 @@ redis:
     enabled: true
     storageClassName: hostpath
     size: 512Mi
-
-postgresql:
-  enabled: true
-  auth:
-    username: airflow
-    password: airflow
-    database: airflow
-  primary:
-    persistence:
-      enabled: true
-      storageClass: hostpath
-      size: 1Gi
 
 dags:
   persistence:
