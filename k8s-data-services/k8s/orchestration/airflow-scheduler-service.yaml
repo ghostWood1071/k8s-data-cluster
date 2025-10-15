@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: airflow-webserver
+  name: airflow-scheduler
   namespace: orchestration
 spec:
   type: NodePort
