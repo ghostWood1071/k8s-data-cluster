@@ -20,6 +20,11 @@ spec:
           envFrom:
             - secretRef:
                 name: airflow-secrets
+          env:
+            - name: AIRFLOW__CORE__HOSTNAME_CALLABLE
+              value: config.hostname_callable.get_hostname
+            - name: AIRFLOW_SCHEDULER_SERVICE_NAME
+              value: airflow-scheduler.airflow.svc.cluster.local
           ports:
             - containerPort: 8080
           readinessProbe:
