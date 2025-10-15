@@ -50,66 +50,73 @@ locals {
 # ------------------------------------------------------------------------------
 # Security Group: SSH, K8s control-plane, NodePort, MinIO
 # ------------------------------------------------------------------------------
-resource "aws_security_group" "mbs-poc-sg" {
-  name        = "mbs-poc-sg"
+resource "aws_security_group" "mbs-poc-sg-2" {
+  name        = "mbs-poc-sg-2"
   description = "Kubernetes + SSH + MinIO"
   vpc_id      = data.aws_vpc.default.id
 
-  # SSH
-  # ingress {
-  #   from_port   = 22
-  #   to_port     = 22
-  #   protocol    = "tcp"
-  #   cidr_blocks = ["0.0.0.0/0"]
-  # }
-  #
-  # # Kubernetes control-plane
-  # ingress {
-  #   from_port   = 6443
-  #   to_port     = 6443
-  #   protocol    = "tcp"
-  #   cidr_blocks = ["0.0.0.0/0"]
-  # }
-  # ingress {
-  #   from_port   = 2379
-  #   to_port     = 2380
-  #   protocol    = "tcp"
-  #   cidr_blocks = ["0.0.0.0/0"]
-  # }
-  # ingress {
-  #   from_port   = 10250
-  #   to_port     = 10250
-  #   protocol    = "tcp"
-  #   cidr_blocks = ["0.0.0.0/0"]
-  # }
-  # ingress {
-  #   from_port   = 10257
-  #   to_port     = 10257
-  #   protocol    = "tcp"
-  #   cidr_blocks = ["0.0.0.0/0"]
-  # }
-  # ingress {
-  #   from_port   = 10259
-  #   to_port     = 10259
-  #   protocol    = "tcp"
-  #   cidr_blocks = ["0.0.0.0/0"]
-  # }
-  #
-  # # NodePort
-  # ingress {
-  #   from_port   = 30000
-  #   to_port     = 32767
-  #   protocol    = "tcp"
-  #   cidr_blocks = ["0.0.0.0/0"]
-  # }
-  #
-  # # MinIO API & Console
-  # ingress {
-  #   from_port   = 9000
-  #   to_port     = 9001
-  #   protocol    = "tcp"
-  #   cidr_blocks = ["0.0.0.0/0"]
-  # }
+  #SSH
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 79
+    to_port     = 79
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # Kubernetes control-plane
+  ingress {
+    from_port   = 6443
+    to_port     = 6443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress {
+    from_port   = 2379
+    to_port     = 2380
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress {
+    from_port   = 10250
+    to_port     = 10250
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress {
+    from_port   = 10257
+    to_port     = 10257
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress {
+    from_port   = 10259
+    to_port     = 10259
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # NodePort
+  ingress {
+    from_port   = 30000
+    to_port     = 32767
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # MinIO API & Console
+  ingress {
+    from_port   = 9000
+    to_port     = 9001
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 
   ingress {
     description = "Allow all inbound traffic"
@@ -142,24 +149,24 @@ data "aws_iam_policy_document" "ssm_assume" {
   }
 }
 
-resource "aws_iam_role" "ssm_role" {
-  name               = "ec2-ssm-role"
+resource "aws_iam_role" "ssm_role-2" {
+  name               = "ec2-ssm-role-2"
   assume_role_policy = data.aws_iam_policy_document.ssm_assume.json
 }
 
-resource "aws_iam_instance_profile" "ssm_profile" {
-  name = "ec2-ssm-instance-profile"
-  role = aws_iam_role.ssm_role.name
+resource "aws_iam_instance_profile" "ssm_profile-2" {
+  name = "ec2-ssm-instance-profile-2"
+  role = aws_iam_role.ssm_role-2.name
 }
 
 # Gắn SSM để đăng nhập/quan sát; và EC2 ReadOnly nếu script MinIO cần tự tìm peer
-resource "aws_iam_role_policy_attachment" "ssm_core" {
-  role       = aws_iam_role.ssm_role.name
+resource "aws_iam_role_policy_attachment" "ssm_core-2" {
+  role       = aws_iam_role.ssm_role-2.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }
 
 resource "aws_iam_role_policy_attachment" "ec2_readonly" {
-  role       = aws_iam_role.ssm_role.name
+  role       = aws_iam_role.ssm_role-2.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess"
 }
 
@@ -272,8 +279,8 @@ resource "aws_instance" "mbs-poc-svc_master" {
   instance_type          = var.svc_instance_type
   subnet_id              = local.subnet_id
   key_name               = var.key_name
-  iam_instance_profile   = aws_iam_instance_profile.ssm_profile.name
-  vpc_security_group_ids = [aws_security_group.mbs-poc-sg.id]
+  iam_instance_profile   = aws_iam_instance_profile.ssm_profile-2.name
+  vpc_security_group_ids = [aws_security_group.mbs-poc-sg-2.id]
 
   user_data = local.master_user_data
 
@@ -305,8 +312,8 @@ resource "aws_instance" "mbs-poc-svc_workers" {
   instance_type          = var.svc_instance_type
   subnet_id              = local.subnet_id
   key_name               = var.key_name
-  iam_instance_profile   = aws_iam_instance_profile.ssm_profile.name
-  vpc_security_group_ids = [aws_security_group.mbs-poc-sg.id]
+  iam_instance_profile   = aws_iam_instance_profile.ssm_profile-2.name
+  vpc_security_group_ids = [aws_security_group.mbs-poc-sg-2.id]
 
   user_data = local.worker_user_data
 
@@ -332,30 +339,30 @@ resource "aws_instance" "mbs-poc-svc_workers" {
 }
 
 # Service starrock master node
-resource "aws_instance" "mbs-poc-starrock-svc_master" {
-  ami                    = local.ami_id
-  instance_type          = var.starrock_instance_type
-  subnet_id              = local.subnet_id
-  key_name               = var.key_name
-  iam_instance_profile   = aws_iam_instance_profile.ssm_profile.name
-  vpc_security_group_ids = [aws_security_group.mbs-poc-sg.id]
-
-  user_data = local.starrock_master_sh
-
-  root_block_device {
-    volume_type = "gp3"
-    volume_size = var.starrock_size_gb
-  }
-
-  tags = {
-    Name = "starrock-master"
-    Role = "starrock-master"
-    OS   = "ubuntu-22.04"
-  }
-}
-output "master_private_ip" {
-  value = aws_instance.mbs-poc-starrock-svc_master.private_ip
-}
+# resource "aws_instance" "mbs-poc-starrock-svc_master" {
+#   ami                    = local.ami_id
+#   instance_type          = var.starrock_instance_type
+#   subnet_id              = local.subnet_id
+#   key_name               = var.key_name
+#   iam_instance_profile   = aws_iam_instance_profile.ssm_profile.name
+#   vpc_security_group_ids = [aws_security_group.mbs-poc-sg.id]
+#
+#   user_data = local.starrock_master_sh
+#
+#   root_block_device {
+#     volume_type = "gp3"
+#     volume_size = var.starrock_size_gb
+#   }
+#
+#   tags = {
+#     Name = "starrock-master"
+#     Role = "starrock-master"
+#     OS   = "ubuntu-22.04"
+#   }
+# }
+# output "master_private_ip" {
+#   value = aws_instance.mbs-poc-starrock-svc_master.private_ip
+# }
 
 # # Service starrock worker nodes
 # resource "aws_instance" "mbs-poc-starrock-svc_workers" {
