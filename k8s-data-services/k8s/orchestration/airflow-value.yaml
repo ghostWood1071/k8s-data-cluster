@@ -15,8 +15,10 @@ webserver:
   service:
     type: NodePort
     ports:
-      http:
+      - name: airflow-ui
+        port: 8080
         nodePort: 30081
+        protocol: TCP
   defaultUser:
     enabled: true
     role: Admin
