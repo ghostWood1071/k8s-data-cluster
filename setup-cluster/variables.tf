@@ -20,10 +20,22 @@ variable "svc_instance_type" {
   default     = "m7i.3xlarge"
 }
 
+variable "starrock_instance_type" {
+  description = "Loại instance cho starrock nodes"
+  type        = string
+  default     = "m7i.3xlarge"
+}
+
 variable "minio_data_size_gb" {
   description = "Kích thước EBS gp3 cho MinIO (GiB)"
   type        = number
   default     = 2048
+}
+
+variable "starrock_size_gb" {
+  description = "Kích thước EBS gp3 cho MinIO (GiB)"
+  type        = number
+  default     = 1000
 }
 
 variable "svc_data_size_gb" {
