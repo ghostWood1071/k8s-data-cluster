@@ -48,9 +48,6 @@ config:
 # =============================
 redis:
   enabled: true
-  architecture: standalone
-  auth:
-    enabled: false
   persistence:
     enabled: true
     storageClassName: hostpath
@@ -74,21 +71,28 @@ postgresql:
 # =============================
 # Airflow DAGS storage
 # =============================
+
+
+# =============================
+# DAGs persistence
+# =============================
 dags:
   persistence:
     enabled: true
     storageClassName: hostpath
-    accessMode: ReadWriteOnce
+    accessModes:
+      - ReadWriteOnce
     size: 1Gi
 
 # =============================
-# Airflow Logs storage
+# Logs persistence
 # =============================
 logs:
   persistence:
     enabled: true
     storageClassName: hostpath
-    accessMode: ReadWriteOnce
+    accessModes:
+      - ReadWriteOnce
     size: 2Gi
 
 # =============================
