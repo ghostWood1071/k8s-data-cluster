@@ -2,8 +2,9 @@ executor: CeleryExecutor
 
 airflow:
   image:
-    repository: nlhtungg/mbs-poc-airflow
-    tag: "1.0.0"
+    repository: apache/airflow
+    tag: "2.10.5"
+
   users:
     - username: admin
       password: admin
@@ -13,7 +14,9 @@ airflow:
 webserver:
   service:
     type: NodePort
-    nodePort: 30081
+    ports:
+      http:
+        nodePort: 30081
   defaultUser:
     enabled: true
     role: Admin
@@ -21,9 +24,12 @@ webserver:
     password: admin
 
 config:
-  AIRFLOW__CORE__LOAD_EXAMPLES: false
-  AIRFLOW__WEBSERVER__EXPOSE_CONFIG: true
-  AIRFLOW__WEBSERVER__BASE_URL: http://localhost:8080
+  AIRFLOW__CORE__LOAD_EXAMPLES:
+    value: "False"
+  AIRFLOW__WEBSERVER__EXPOSE_CONFIG:
+    value: "True"
+  AIRFLOW__WEBSERVER__BASE_URL:
+    value: "http://localhost:8080"
 
 redis:
   enabled: true
