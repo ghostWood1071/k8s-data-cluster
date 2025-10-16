@@ -30,9 +30,9 @@ postgresql:
     enablePostgresUser: false
 
 # Default airflow repository -- overridden by all the specific images below
-defaultAirflowRepository: airflow:2.9.0-python3.11
+defaultAirflowRepository: airflow
 # Default airflow tag to deploy
-defaultAirflowTag: "1.0.0"
+defaultAirflowTag: "2.9.0-python3.11"
 # Default airflow digest. If specified, it takes precedence over tag
 defaultAirflowDigest: ~
 # Airflow version (Used to make some decisions based on Airflow Version being deployed)
