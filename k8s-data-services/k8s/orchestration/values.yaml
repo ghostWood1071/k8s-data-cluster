@@ -59,7 +59,7 @@ config:
 worker:
   persistence:
     enabled: true
-    size: 4Gi
+    size: 1Gi
 triggerer:
   enabled: true
   persistence:
@@ -94,4 +94,5 @@ redis:
 logs:
   persistence:
     enabled: true
+    accessMode: ReadWriteMany
     size: 1Gi
