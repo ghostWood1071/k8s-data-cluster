@@ -30,13 +30,13 @@ postgresql:
     enablePostgresUser: false
 
 # Default airflow repository -- overridden by all the specific images below
-defaultAirflowRepository: nlhtungg/mbs-poc-airflow
+defaultAirflowRepository: airflow:2.9.0-python3.11
 # Default airflow tag to deploy
 defaultAirflowTag: "1.0.0"
 # Default airflow digest. If specified, it takes precedence over tag
 defaultAirflowDigest: ~
 # Airflow version (Used to make some decisions based on Airflow Version being deployed)
-airflowVersion: "2.7.3"
+airflowVersion: "2.9.0"
 
 dagProcessor:
   enabled: ~
@@ -51,7 +51,6 @@ config:
     # For Airflow 1.10, backward compatibility; moved to [logging] in 2.0
     colored_console_log: 'False'
     remote_logging: '{{- ternary "True" "False" (or .Values.elasticsearch.enabled .Values.opensearch.enabled) }}'
-    auth_manager: "airflow.www.fab_security.manager.FabAuthManager"
   kubernetes:
     namespace: '{{ .Release.Namespace }}'
     # The following `airflow_` entries are for Airflow 1, and can be removed when it is no longer supported.
