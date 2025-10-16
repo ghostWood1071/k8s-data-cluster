@@ -38,6 +38,13 @@ airflowVersion: "2.7.3"
 dagProcessor:
   enabled: ~
 
+
+env:
+  - name: AIRFLOW__CORE__FERNET_KEY
+    value: "31E1-24OEkjXpTnzoypiTODWKtA3GUlRuqZjnkc9e20="
+  - name: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
+    value: "postgresql+psycopg2://airflow:airflow@airflow-postgresql.orchestration.svc.cluster.local:5432/airflow"
+
 config:
   core:
     dags_folder: '{{ include "airflow_dags" . }}'
