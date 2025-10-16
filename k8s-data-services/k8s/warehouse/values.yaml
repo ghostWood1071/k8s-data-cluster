@@ -45,7 +45,7 @@ operator:
       repository: starrocks/operator
       tag: v1.11.2
     imagePullPolicy: Always
-    replicaCount: 1
+    replicaCount: 2
     resources:
       limits:
         cpu: 500m
@@ -156,7 +156,7 @@ starrocks:
     #    memory: 800Mi
   
   # TimeZone is used to set the environment variable TZ for pod, with Asia/Shanghai as the default.
-  timeZone: Asia/Shanghai
+  timeZone: Asia/Ho_Chi_Minh
   
   # This configuration is used to integrate with an external system DataDog.
   # You can enable the integration by setting the enabled to true, e.g., datalog.log.enabled=true will enable datadog agent
@@ -170,9 +170,9 @@ starrocks:
     metrics:
       enabled: false
     profiling:
-      fe: false # change to 'true' to enable profiling on FE pods;
-      be: false # change to 'true' to enable profiling on BE pods;
-      cn: false # change to 'true' to enable profiling on CN pods;
+      fe: true # change to 'true' to enable profiling on FE pods;
+      be: true # change to 'true' to enable profiling on BE pods;
+      cn: true # change to 'true' to enable profiling on CN pods;
       env: "starrocks-default" # the default value for DD_ENV;
       configMode: "service" # see https://docs.datadoghq.com/containers/cluster_agent/admission_controller/?tab=operator#configure-apm-and-dogstatsd-communication-mode
   
@@ -221,7 +221,7 @@ starrocks:
     annotations: {}
     # specify the BE/CN deployment or not.
     enabledBe: true
-    enabledCn: false
+    enabledCn: true
     # Disaster recovery configuration. If you want to enable disaster recovery, you need to set the enabled field to true.
     # Note:
     #  1. If you are using an existing StarRocks cluster, you need to clean up the meta of the FE component and the data of the CN
@@ -310,7 +310,7 @@ starrocks:
   # spec to deploy fe.
   starrocksFESpec:
     # number of replicas to deploy for a FE statefulset.
-    replicas: 1
+    replicas: 2
     image:
       # image sliced by "repository:tag"
       repository: starrocks/fe-ubuntu
@@ -448,12 +448,12 @@ starrocks:
     # resources for FE pod.
     resources:
       requests:
-        cpu: 4
-        memory: 4Gi
+        cpu: 2
+        memory: 2Gi
       # If you want to remove one resource limit, e.g., cpu, you can set it to cpu: "unlimited".
       limits:
-        cpu: 8
-        memory: 8Gi
+        cpu: 4
+        memory: 4Gi
     # FE storageSpec for persistent metadata.
     # Note: Once set, the following fields will not be allowed to be modified.
     storageSpec:

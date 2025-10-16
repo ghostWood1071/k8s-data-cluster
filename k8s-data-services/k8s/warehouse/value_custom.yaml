@@ -1,118 +1,32 @@
-# ===============================
-# starrocks-values.yaml
-# ===============================
+starrocks:
+    initPassword:
+        enabled: true
+        # Set a password secret, for example:
+        # kubectl create secret generic starrocks-root-pass --from-literal=password='g()()dpa$$word'
+        passwordSecret: starrocks-root-pass
 
-global:
-  timezone: Asia/Ho_Chi_Minh
-  storageClass: "hostpath"
-  image:
-    repository: starrocks
-    tag: 3.3.0
+    starrocksFESpec:
+        replicas: 3
+        service:
+            type: LoadBalancer
+        resources:
+            requests:
+                cpu: 1
+                memory: 4Gi
+        storageSpec:
+            name: fe
 
-# ===============================
-# Frontend Configuration (FE)
-# ===============================
-fe:
-  replicas: 1
-  image:
-    repository: starrocks/fe-ubuntu
-    tag: 3.3.0
-  service:
-    type: NodePort
-    ports:
-      query: 9030
-      web: 8030
-      editlog: 9010
-    nodePorts:
-      query: 30930
-      web: 30830
-      editlog: 30910
-  config:
-    run_mode: shared_data
-    priority_networks: 10.0.0.0/16
-    timezone: Asia/Ho_Chi_Minh
-  resources:
-    requests:
-      cpu: 4
-      memory: 8Gi
-    limits:
-      cpu: 8
-      memory: 16Gi
-  persistence:
-    enabled: true
-    size: 50Gi
-    storageClass: local-path
+    starrocksBeSpec:
+        replicas: 3
+        resources:
+            requests:
+                cpu: 10
+                memory: 56Gi
+        storageSpec:
+            name: be
+            storageSize: 800Gi
 
-# ===============================
-# Backend Configuration (BE)
-# ===============================
-be:
-  replicas: 2
-  image:
-    repository: starrocks/be-ubuntu
-    tag: 3.3.0
-  # 2 BE pod sẽ tự dàn đều trên 2 worker node
-  topologySpreadConstraints:
-    - maxSkew: 1
-      topologyKey: kubernetes.io/hostname
-      whenUnsatisfiable: ScheduleAnyway
-  service:
-    type: ClusterIP
-  resources:
-    requests:
-      cpu: 14
-      memory: 56Gi
-    limits:
-      cpu: 15
-      memory: 60Gi
-  config:
-    storage_root_path: /opt/starrocks/be/storage
-    sys_log_dir: /opt/starrocks/be/log
-    be_port: 9060
-    webserver_port: 8040
-    heartbeat_service_port: 9050
-    brpc_port: 8060
-    timezone: Asia/Ho_Chi_Minh
-  persistence:
-    enabled: true
-    size: 900Gi
-    storageClass: local-path
-
-# ===============================
-# Broker Configuration (optional)
-# ===============================
-broker:
-  enabled: true
-  replicas: 1
-  image:
-    repository: starrocks/broker-ubuntu
-    tag: 3.3.0
-  resources:
-    requests:
-      cpu: 2
-      memory: 4Gi
-    limits:
-      cpu: 4
-      memory: 8Gi
-  persistence:
-    enabled: false
-  service:
-    type: ClusterIP
-  config:
-    timezone: Asia/Ho_Chi_Minh
-
-# ===============================
-# CN (Compute Node - optional)
-# ===============================
-cn:
-  enabled: false
-
-# ===============================
-# StarRocks Cluster Metadata
-# ===============================
-starrocksCluster:
-  name: starrocks
-  image:
-    repository: starrocks
-    tag: 3.3.0
-  timezone: Asia/Ho_Chi_Minh
+    starrocksFeProxySpec:
+        enabled: true
+        service:
+            type: LoadBalancer

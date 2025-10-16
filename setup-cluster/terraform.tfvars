@@ -3,7 +3,7 @@ key_name = "mbs-poc-key"
 
 minio_instance_type = "t3.medium"
 svc_instance_type   = "t3.xlarge"
-starrock_instance_type = "t3.xlarge"
+starrock_instance_type = "m5.4xlarge"
 # minio_instance_type = "m5.2xlarge"
 # svc_instance_type   = "m5.4xlarge"
 
