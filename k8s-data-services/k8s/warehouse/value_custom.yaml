@@ -12,7 +12,7 @@ starrocks:
         resources:
             requests:
                 cpu: 1
-                memory: 4Gi
+                memory: 1Gi
         storageSpec:
             name: fe
 
@@ -20,11 +20,11 @@ starrocks:
         replicas: 3
         resources:
             requests:
-                cpu: 10
-                memory: 56Gi
+                cpu: 1
+                memory: 2Gi
         storageSpec:
             name: be
-            storageSize: 800Gi
+            storageSize: 15Gi
 
     starrocksFeProxySpec:
         enabled: true
