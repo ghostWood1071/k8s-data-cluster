@@ -94,5 +94,4 @@ redis:
 logs:
   persistence:
     enabled: true
-    accessMode: ReadWriteMany
     size: 1Gi
