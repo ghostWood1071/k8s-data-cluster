@@ -16,6 +16,15 @@ data:
     db: airflow
     sslmode: disable
 
+# Default airflow repository -- overridden by all the specific images below
+defaultAirflowRepository: nlhtungg/mbs-poc-airflow
+# Default airflow tag to deploy
+defaultAirflowTag: "1.0.0"
+# Default airflow digest. If specified, it takes precedence over tag
+defaultAirflowDigest: ~
+# Airflow version (Used to make some decisions based on Airflow Version being deployed)
+airflowVersion: "1.0.0"
+
 dagProcessor:
   enabled: ~
 
