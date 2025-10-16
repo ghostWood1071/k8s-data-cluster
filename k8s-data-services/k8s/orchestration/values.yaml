@@ -21,8 +21,8 @@ postgresql:
   enabled: true
   image:
     registry: docker.io
-    repository: postgres
-    tag: "15"
+    repository: bitnami/postgresql
+    tag: "latest"
     pullPolicy: IfNotPresent
   auth:
     username: airflow
