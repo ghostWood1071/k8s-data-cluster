@@ -24,7 +24,10 @@ postgresql:
     repository: bitnami/postgresql
     tag: "latest"        
     pullPolicy: IfNotPresent
-
+  auth:
+    username: airflow
+    password: airflow
+    database: airflow
 
 # Default airflow repository -- overridden by all the specific images below
 defaultAirflowRepository: nlhtungg/mbs-poc-airflow
