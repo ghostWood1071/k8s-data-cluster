@@ -16,6 +16,16 @@ data:
     db: airflow
     sslmode: disable
 
+
+postgresql:
+  enabled: true
+  image:
+    registry: docker.io
+    repository: bitnami/postgresql
+    tag: "latest"        
+    pullPolicy: IfNotPresent
+
+
 # Default airflow repository -- overridden by all the specific images below
 defaultAirflowRepository: nlhtungg/mbs-poc-airflow
 # Default airflow tag to deploy
