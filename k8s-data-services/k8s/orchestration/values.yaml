@@ -11,7 +11,7 @@ data:
     user: airflow
     pass: airflow
     protocol: postgresql
-    host: 172.31.14.12
+    host: airflow-postgresql.orchestration.svc.cluster.local
     port: 5432
     db: airflow
     sslmode: disable
