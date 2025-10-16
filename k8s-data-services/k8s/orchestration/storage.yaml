@@ -13,7 +13,7 @@ metadata:
   name: pv-airflow-postgres
 spec:
   capacity:
-    storage: 3Gi
+    storage: 5Gi
   accessModes:
     - ReadWriteOnce
   storageClassName: hostpath
