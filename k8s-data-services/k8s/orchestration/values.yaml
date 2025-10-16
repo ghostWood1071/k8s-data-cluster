@@ -21,12 +21,13 @@ postgresql:
   enabled: true
   image:
     registry: docker.io
-    repository: postgres
-    tag: "18"
+    repository: bitnami/postgresql
+    tag: "latest"
     pullPolicy: IfNotPresent
   auth:
     username: airflow
     password: airflow
+    enablePostgresUser: false
 
 # Default airflow repository -- overridden by all the specific images below
 defaultAirflowRepository: nlhtungg/mbs-poc-airflow
