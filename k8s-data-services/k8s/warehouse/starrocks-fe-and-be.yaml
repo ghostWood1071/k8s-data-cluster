@@ -45,7 +45,7 @@ spec:
     storageVolumes:
     - name: be-data
       # storageClassName: ""  # If storageClassName is not set, Kubernetes will use the default storage class.
-      storageSize: 1Ti
+      storageSize: 600Gi
       mountPath: /opt/starrocks/be/storage
     - name: be-log
       # storageClassName: ""  # If storageClassName is not set, Kubernetes will use the default storage class.
