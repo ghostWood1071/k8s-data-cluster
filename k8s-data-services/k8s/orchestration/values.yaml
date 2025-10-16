@@ -108,3 +108,9 @@ logs:
   persistence:
     enabled: true
     size: 1Gi
+
+web:
+  service:
+    type: NodePort
+    nodePort: 30080
+    port: 8080
