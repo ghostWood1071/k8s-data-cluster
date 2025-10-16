@@ -60,7 +60,7 @@ spec:
   capacity:
     storage: 2Gi
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
   storageClassName: hostpath
   persistentVolumeReclaimPolicy: Retain
   hostPath:
