@@ -50,4 +50,4 @@ spec:
       storageClassName: hostpath
       resources:
         requests:
-          storage: 5Gi
+          storage: 2Gi
