@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: minio
-  namespace: minio-demo
+  namespace: storage
   labels:
     app: minio
 spec:
@@ -28,9 +28,9 @@ spec:
         image: minio/minio:latest
         args:
         - server   # who are our servers in cluster (below)
-        - http://minio-0.minio.minio-demo.svc.cluster.local/data
-        - http://minio-1.minio.minio-demo.svc.cluster.local/data
-        - http://minio-2.minio.minio-demo.svc.cluster.local/data
+        - http://minio-0.minio.storage.svc.cluster.local/data
+        - http://minio-1.minio.storage.svc.cluster.local/data
+        - http://minio-2.minio.storage.svc.cluster.local/data
         - --console-address   # which port for console
         - :9001
         ports:
