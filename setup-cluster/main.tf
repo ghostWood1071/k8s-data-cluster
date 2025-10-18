@@ -347,8 +347,6 @@ resource "aws_instance" "mbs-poc-starrock-svc_master" {
   iam_instance_profile   = aws_iam_instance_profile.ssm_profile-2.name
   vpc_security_group_ids = [aws_security_group.mbs-poc-sg-2.id]
 
-  user_data = local.master_user_data
-
   root_block_device {
     volume_type = "gp3"
     volume_size = var.starrock_size_gb
@@ -370,8 +368,6 @@ resource "aws_instance" "mbs-poc-starrock-svc_workers" {
   key_name               = var.key_name
   iam_instance_profile   = aws_iam_instance_profile.ssm_profile-2.name
   vpc_security_group_ids = [aws_security_group.mbs-poc-sg-2.id]
-
-  user_data = local.worker_user_data
 
   root_block_device {
     volume_type = "gp3"
