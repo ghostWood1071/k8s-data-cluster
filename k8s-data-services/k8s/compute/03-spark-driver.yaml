@@ -18,26 +18,23 @@ spec:
         - |
           mkdir -p /opt/spark/work-dir/logs && \
           /opt/spark/bin/spark-submit \
-            --master k8s://https://kubernetes.default.svc \
-            --deploy-mode cluster \
-            --name spark-pi \
-            --class org.apache.spark.examples.SparkPi \
-            --conf spark.kubernetes.namespace=compute \
-            --conf spark.kubernetes.authenticate.driver.serviceAccountName=spark \
-            --conf spark.kubernetes.container.image=apache/spark:3.5.3 \
-            --conf spark.eventLog.enabled=true \
-            --conf spark.eventLog.dir=file:///opt/spark/work-dir/logs \
-            --conf spark.kubernetes.driver.pod.name=spark-pi-$(date +%s) \
-            --conf spark.hadoop.fs.s3a.endpoint=http://minio-0.sotrage.svc.cluster.local:9000 \
-            --conf spark.hadoop.fs.s3a.access.key=minioadmin \
-            --conf spark.hadoop.fs.s3a.secret.key=minio@demo! \
-            --conf spark.hadoop.fs.s3a.path.style.access=true \
-            --conf spark.hadoop.fs.s3a.impl=org.apache.hadoop.fs.s3a.S3AFileSystem \
-            --conf spark.eventLog.enabled=true \
-            --conf spark.eventLog.dir=s3a://spark-logs/events \
-            --packages org.apache.hadoop:hadoop-aws:3.3.4,com.amazonaws:aws-java-sdk-bundle:1.12.262\
-            local:///opt/spark/examples/jars/spark-examples_2.12-3.5.3.jar \
-            1000
+          --master k8s://https://kubernetes.default.svc \
+          --deploy-mode cluster \
+          --name spark-pi \
+          --class org.apache.spark.examples.SparkPi \
+          --conf spark.kubernetes.namespace=compute \
+          --conf spark.kubernetes.authenticate.driver.serviceAccountName=spark \
+          --conf spark.kubernetes.container.image=apache/spark:3.5.3 \
+          --packages org.apache.hadoop:hadoop-aws:3.3.4,com.amazonaws:aws-java-sdk-bundle:1.12.262 \
+          --conf spark.hadoop.fs.s3a.endpoint=http://minio.compute.svc.cluster.local:9000 \
+          --conf spark.hadoop.fs.s3a.access.key=minioadmin \
+          --conf spark.hadoop.fs.s3a.secret.key=minio@demo! \
+          --conf spark.hadoop.fs.s3a.path.style.access=true \
+          --conf spark.hadoop.fs.s3a.impl=org.apache.hadoop.fs.s3a.S3AFileSystem \
+          --conf spark.eventLog.enabled=true \
+          --conf spark.eventLog.dir=s3a://spark-logs/events \
+          local:///opt/spark/examples/jars/spark-examples_2.12-3.5.3.jar \
+          1000
       ports:
         - name: ui
           containerPort: 4040
