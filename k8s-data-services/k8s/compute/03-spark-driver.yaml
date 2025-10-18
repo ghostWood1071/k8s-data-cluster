@@ -19,7 +19,7 @@ spec:
       imagePullPolicy: IfNotPresent
       volumeMounts:
         - name: spark-ivy-cache
-          mountPath: /opt/spark/work-dir/.ivy2
+          mountPath: /home/spark/.ivy2
       command:
         - /bin/bash
         - -c
