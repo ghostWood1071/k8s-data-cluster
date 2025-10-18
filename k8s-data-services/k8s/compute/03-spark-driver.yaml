@@ -17,6 +17,7 @@ spec:
         - -c
         - |
           mkdir -p /opt/spark/work-dir/logs && \
+          mkdir -p /home/spark/.ivy2/cache && chmod -R 777 /home/spark && \
           /opt/spark/bin/spark-submit \
           --master k8s://https://kubernetes.default.svc \
           --deploy-mode cluster \
