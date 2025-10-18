@@ -28,7 +28,7 @@ spec:
             --deploy-mode cluster \
             --name spark-pi \
             --class org.apache.spark.examples.SparkPi \
-            --conf spark.kubernetes.namespace=spark \
+            --conf spark.kubernetes.namespace=compute \
             --conf spark.kubernetes.authenticate.driver.serviceAccountName=spark \
             --conf spark.kubernetes.container.image=apache/spark:3.5.3 \
             --conf spark.eventLog.enabled=true \
