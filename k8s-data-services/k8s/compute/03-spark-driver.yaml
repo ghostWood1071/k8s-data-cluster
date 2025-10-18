@@ -8,10 +8,18 @@ metadata:
 spec:
   serviceAccountName: spark
   restartPolicy: Never
+  volumes:
+    - name: spark-ivy-cache
+      hostPath:
+        path: /data/spark/ivy-cache
+        type: DirectoryOrCreate
   containers:
     - name: spark
       image: apache/spark:3.5.3
       imagePullPolicy: IfNotPresent
+      volumeMounts:
+        - name: spark-ivy-cache
+          mountPath: /opt/spark/work-dir/.ivy2
       command:
         - /bin/bash
         - -c
