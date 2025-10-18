@@ -19,7 +19,7 @@ spec:
       imagePullPolicy: IfNotPresent
       volumeMounts:
         - name: spark-ivy-cache
-          mountPath: /home/spark/.ivy2
+          mountPath: /tmp/spark/.ivy2
       command:
         - /bin/bash
         - -c
@@ -40,6 +40,7 @@ spec:
           --conf spark.hadoop.fs.s3a.impl=org.apache.hadoop.fs.s3a.S3AFileSystem \
           --conf spark.eventLog.enabled=true \
           --conf spark.eventLog.dir=s3a://spark-logs/events \
+          --conf spark.driver.extraJavaOptions="-Divy.cache.dir=/tmp -Divy.home=/tmp"
           local:///opt/spark/examples/jars/spark-examples_2.12-3.5.3.jar \
           1000
       ports:
