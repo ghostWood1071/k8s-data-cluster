@@ -33,7 +33,7 @@ spec:
             --conf spark.kubernetes.container.image=apache/spark:3.5.3 \
             --conf spark.eventLog.enabled=true \
             --conf spark.eventLog.dir=file:///opt/spark/work-dir/logs \
-            --conf spark.kubernetes.driver.pod.name=spark-pi \
+            --conf spark.kubernetes.driver.pod.name=spark-pi-$(date +%s) \
             local:///opt/spark/examples/jars/spark-examples_2.12-3.5.3.jar \
             1000
       ports:
