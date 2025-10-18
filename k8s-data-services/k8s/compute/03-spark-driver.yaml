@@ -8,18 +8,10 @@ metadata:
 spec:
   serviceAccountName: spark
   restartPolicy: Never
-  volumes:
-    - name: spark-logs
-      hostPath:
-        path: /data/spark/logs        # 👈 đường dẫn thật trên node host
-        type: DirectoryOrCreate
   containers:
     - name: spark
       image: apache/spark:3.5.3
       imagePullPolicy: IfNotPresent
-      volumeMounts:
-        - mountPath: /opt/spark/work-dir/logs
-          name: spark-logs
       command:
         - /bin/bash
         - -c
@@ -36,6 +28,13 @@ spec:
             --conf spark.eventLog.enabled=true \
             --conf spark.eventLog.dir=file:///opt/spark/work-dir/logs \
             --conf spark.kubernetes.driver.pod.name=spark-pi-$(date +%s) \
+            --conf spark.hadoop.fs.s3a.endpoint=http://minio-0.sotrage.svc.cluster.local:9000 \
+            --conf spark.hadoop.fs.s3a.access.key=minioadmin \
+            --conf spark.hadoop.fs.s3a.secret.key=minio@demo! \
+            --conf spark.hadoop.fs.s3a.path.style.access=true \
+            --conf spark.hadoop.fs.s3a.impl=org.apache.hadoop.fs.s3a.S3AFileSystem \
+            --conf spark.eventLog.enabled=true \
+            --conf spark.eventLog.dir=s3a://spark-logs/events \
             --packages org.apache.hadoop:hadoop-aws:3.3.4,com.amazonaws:aws-java-sdk-bundle:1.12.262\
             local:///opt/spark/examples/jars/spark-examples_2.12-3.5.3.jar \
             1000
