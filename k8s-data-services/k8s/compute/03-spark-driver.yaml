@@ -24,9 +24,6 @@ spec:
         - /bin/bash
         - -c
         - |
-          export IVY_HOME=/opt/spark/work-dir/.ivy2 && \
-          mkdir -p $IVY_HOME/cache && chmod -R 777 $IVY_HOME && \
-          mkdir -p /opt/spark/work-dir/logs && chmod -R 777 /opt/spark/work-dir/logs && \
           /opt/spark/bin/spark-submit \
           --master k8s://https://kubernetes.default.svc \
           --deploy-mode cluster \
