@@ -41,8 +41,17 @@ airflowVersion: "2.9.0"
 dagProcessor:
   enabled: ~
 
+airflow:
+  kubernetesPodTemplate:
+    extraPipPackages:
+      - "apache-airflow-providers-amazon==10.3.0"
 
 config:
+  logging:
+    remoteLogging: true
+    remoteLogConnId: minio_conn
+    remoteBaseLogFolder: s3a://airflow-logs
+    encryptS3Logs: false
   core:
     dags_folder: '{{ include "airflow_dags" . }}'
     # This is ignored when used with the official Docker image
