@@ -103,7 +103,7 @@ dags:
     maxFailures: 0
     subPath: "tests/dags"
 redis:
-  enabled: false
+  enabled: true
 logs:
   persistence:
     enabled: true
