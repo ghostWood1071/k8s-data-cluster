@@ -49,6 +49,9 @@ airflow:
 config:
   logging:
     remoteLogging: true
+    remoteLogConnId: minio_conn
+    remoteBaseLogFolder: s3a://airflow-logs
+    encryptS3Logs: false
   core:
     dags_folder: '{{ include "airflow_dags" . }}'
     # This is ignored when used with the official Docker image
