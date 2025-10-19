@@ -20,7 +20,6 @@ spec:
         command:
           - /opt/spark/bin/spark-submit
         args:
-          - --master k8s://https://kubernetes.default.svc \
           - --deploy-mode cluster \
           - --name spark-thrift \
           - --conf spark.kubernetes.namespace=compute \
