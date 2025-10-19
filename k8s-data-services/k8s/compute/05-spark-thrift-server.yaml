@@ -24,6 +24,9 @@ spec:
             echo "Starting Spark Thrift Server (Delta + MinIO + Hive)..."
             /opt/spark/sbin/start-thriftserver.sh \
               --master k8s://https://kubernetes.default.svc \
+              --deploy-mode client \
+              --conf spark.kubernetes.container.image=apache/spark:3.5.1 \
+              --conf spark.executor.instances=2 \
               --conf spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension \
               --conf spark.sql.catalog.spark_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog \
               --conf spark.sql.catalogImplementation=hive \
