@@ -24,9 +24,9 @@ with DAG(
     create_delta_job = SparkSubmitOperator(
         task_id="create_delta_job",
         application="local:///opt/spark/app/create-sample-value-job.py",
-        master="k8s://https://kubernetes.default.svc:443",
         deploy_mode="cluster",
         name="spark-delta-create",
+        conn_id="spark_k8s",
         conf={
             "spark.kubernetes.namespace": "compute",
             "spark.kubernetes.container.image": "ghostwood/spark-delta-samp-job:latest",
