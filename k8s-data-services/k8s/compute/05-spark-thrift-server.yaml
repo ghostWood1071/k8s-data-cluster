@@ -16,7 +16,7 @@ spec:
       serviceAccountName: spark
       containers:
       - name: thrift
-        image: spark:3.5.7-scala2.12-java17-python3-ubuntu
+        image: apache/spark:3.5.7-scala2.12-java17-python3-ubuntu
         imagePullPolicy: IfNotPresent
         command: ["/bin/bash", "-c"]
         args:
