@@ -20,10 +20,10 @@ spec:
         command:
           - /opt/spark/bin/spark-submit
         args:
-          - --class
-          - org.apache.spark.sql.hive.thriftserver.HiveThriftServer2
           - --master
           - k8s://https://kubernetes.default.svc
+          - --conf spark.kubernetes.namespace=compute \
+          - --conf spark.kubernetes.authenticate.driver.serviceAccountName=spark \
           - --conf spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension
           - --conf spark.sql.catalog.spark_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog
           - --conf spark.sql.catalogImplementation=hive
@@ -37,6 +37,7 @@ spec:
           - --conf spark.eventLog.dir=s3a://spark-logs/events
           - --conf spark.driver.extraJavaOptions="-Divy.cache.dir=/tmp -Divy.home=/tmp"
           - --packages io.delta:delta-spark_2.12:3.2.0,org.apache.hadoop:hadoop-aws:3.3.4,org.apache.hadoop:hadoop-common:3.3.4,com.amazonaws:aws-java-sdk-bundle:1.12.262
+          - --class org.apache.spark.sql.hive.thriftserver.HiveThriftServer2
         ports:
           - containerPort: 10000
             name: thrift
