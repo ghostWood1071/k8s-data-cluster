@@ -6,7 +6,7 @@ default_args = {"owner": "airflow", "retries": 0}
 
 # Maven coordinates (Spark sẽ tự tải)
 PACKAGES = ",".join([
-    "io.delta:delta-core_2.12:2.4.0",
+    "io.delta:delta-spark_2.12:3.2.0",
     "org.apache.hadoop:hadoop-aws:3.3.4",
     "org.postgresql:postgresql:42.7.3",
     "org.apache.hive:hive-metastore:3.1.3",
