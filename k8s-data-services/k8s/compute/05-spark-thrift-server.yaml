@@ -51,7 +51,7 @@ spec:
           - --conf
           - spark.eventLog.dir=s3a://spark-logs/events
           - --conf
-          - spark.driver.extraJavaOptions="-Divy.cache.dir=/tmp -Divy.home=/tmp
+          - spark.driver.extraJavaOptions="-Divy.cache.dir=/tmp -Divy.home=/tmp"
         ports:
           - containerPort: 10000
             name: thrift
