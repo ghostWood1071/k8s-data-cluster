@@ -20,15 +20,14 @@ spec:
         command:
           - /opt/spark/bin/spark-submit
         args:
-          - --name spark-thrift \
-          - --conf spark.kubernetes.namespace=compute \
-          - --conf spark.kubernetes.authenticate.driver.serviceAccountName=spark \
           - --class
           - org.apache.spark.sql.hive.thriftserver.HiveThriftServer2
           - --master
           - k8s://https://kubernetes.default.svc
           - --packages
           - io.delta:delta-spark_2.12:3.2.0,hadoop-aws:3.3.4,com.amazonaws:aws-java-sdk-bundle:1.12.262
+          - --conf spark.kubernetes.namespace=compute \
+          - --conf spark.kubernetes.authenticate.driver.serviceAccountName=spark \
           - --conf
           - spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension
           - --conf
