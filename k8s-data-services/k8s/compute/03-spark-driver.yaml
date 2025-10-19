@@ -1,48 +1,48 @@
-apiVersion: v1
-kind: Pod
-metadata:
-  name: spark-pi
-  namespace: compute
-  labels:
-    app: spark-pi
-spec:
-  serviceAccountName: spark
-  restartPolicy: Never
-  volumes:
-    - name: spark-ivy-cache
-      hostPath:
-        path: /data/spark/ivy-cache
-        type: DirectoryOrCreate
-  containers:
-    - name: spark
-      image: apache/spark:3.5.3
-      imagePullPolicy: IfNotPresent
-      volumeMounts:
-        - name: spark-ivy-cache
-          mountPath: /tmp/spark/.ivy2
-      command:
-        - /bin/bash
-        - -c
-        - |
-          /opt/spark/bin/spark-submit \
-          --master k8s://https://kubernetes.default.svc \
-          --deploy-mode cluster \
-          --name spark-pi \
-          --class org.apache.spark.examples.SparkPi \
-          --conf spark.kubernetes.namespace=compute \
-          --conf spark.kubernetes.authenticate.driver.serviceAccountName=spark \
-          --conf spark.kubernetes.container.image=apache/spark:3.5.3 \
-          --packages org.apache.hadoop:hadoop-aws:3.3.4,com.amazonaws:aws-java-sdk-bundle:1.12.262 \
-          --conf spark.hadoop.fs.s3a.endpoint=http://minio.compute.svc.cluster.local:9000 \
-          --conf spark.hadoop.fs.s3a.access.key=minioadmin \
-          --conf spark.hadoop.fs.s3a.secret.key=minio@demo! \
-          --conf spark.hadoop.fs.s3a.path.style.access=true \
-          --conf spark.hadoop.fs.s3a.impl=org.apache.hadoop.fs.s3a.S3AFileSystem \
-          --conf spark.eventLog.enabled=true \
-          --conf spark.eventLog.dir=s3a://spark-logs/events \
-          --conf spark.driver.extraJavaOptions="-Divy.cache.dir=/tmp -Divy.home=/tmp"
-          local:///opt/spark/examples/jars/spark-examples_2.12-3.5.3.jar \
-          1000
-      ports:
-        - name: ui
-          containerPort: 4040
+#apiVersion: v1
+#kind: Pod
+#metadata:
+#  name: spark-pi
+#  namespace: compute
+#  labels:
+#    app: spark-pi
+#spec:
+#  serviceAccountName: spark
+#  restartPolicy: Never
+#  volumes:
+#    - name: spark-ivy-cache
+#      hostPath:
+#        path: /data/spark/ivy-cache
+#        type: DirectoryOrCreate
+#  containers:
+#    - name: spark
+#      image: apache/spark:3.5.3
+#      imagePullPolicy: IfNotPresent
+#      volumeMounts:
+#        - name: spark-ivy-cache
+#          mountPath: /tmp/spark/.ivy2
+#      command:
+#        - /bin/bash
+#        - -c
+#        - |
+#          /opt/spark/bin/spark-submit \
+#          --master k8s://https://kubernetes.default.svc \
+#          --deploy-mode cluster \
+#          --name spark-pi \
+#          --class org.apache.spark.examples.SparkPi \
+#          --conf spark.kubernetes.namespace=compute \
+#          --conf spark.kubernetes.authenticate.driver.serviceAccountName=spark \
+#          --conf spark.kubernetes.container.image=apache/spark:3.5.3 \
+#          --packages org.apache.hadoop:hadoop-aws:3.3.4,com.amazonaws:aws-java-sdk-bundle:1.12.262 \
+#          --conf spark.hadoop.fs.s3a.endpoint=http://minio.compute.svc.cluster.local:9000 \
+#          --conf spark.hadoop.fs.s3a.access.key=minioadmin \
+#          --conf spark.hadoop.fs.s3a.secret.key=minio@demo! \
+#          --conf spark.hadoop.fs.s3a.path.style.access=true \
+#          --conf spark.hadoop.fs.s3a.impl=org.apache.hadoop.fs.s3a.S3AFileSystem \
+#          --conf spark.eventLog.enabled=true \
+#          --conf spark.eventLog.dir=s3a://spark-logs/events \
+#          --conf spark.driver.extraJavaOptions="-Divy.cache.dir=/tmp -Divy.home=/tmp"
+#          local:///opt/spark/examples/jars/spark-examples_2.12-3.5.3.jar \
+#          1000
+#      ports:
+#        - name: ui
+#          containerPort: 4040
