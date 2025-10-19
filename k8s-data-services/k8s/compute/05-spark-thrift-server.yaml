@@ -32,8 +32,8 @@ spec:
               --conf spark.sql.catalogImplementation=hive \
               --conf spark.hadoop.hive.metastore.uris=thrift://hive-metastore.metastore.svc.cluster.local:9083 \
               --conf spark.hadoop.fs.s3a.endpoint=http://minio-0.storage.svc.cluster.local:9000 \
-              --conf spark.hadoop.fs.s3a.access.key=minio \
-              --conf spark.hadoop.fs.s3a.secret.key=minio123 \
+              --conf spark.hadoop.fs.s3a.access.key=minioadmin \
+              --conf spark.hadoop.fs.s3a.secret.key=minio@demo! \
               --conf spark.hadoop.fs.s3a.path.style.access=true \
               --conf spark.hadoop.fs.s3a.connection.ssl.enabled=false \
               --conf spark.sql.warehouse.dir=s3a://warehouse/ \
