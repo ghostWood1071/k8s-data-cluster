@@ -20,7 +20,6 @@ spec:
         command:
           - /opt/spark/bin/spark-submit
         args:
-          - --packages io.delta:delta-spark_2.12:3.2.0,org.apache.hadoop:hadoop-aws:3.3.4,org.apache.hadoop:hadoop-common:3.3.4,com.amazonaws:aws-java-sdk-bundle:1.12.262
           - --class
           - org.apache.spark.sql.hive.thriftserver.HiveThriftServer2
           - --master
@@ -39,6 +38,7 @@ spec:
           - --conf spark.sql.warehouse.dir=s3a://warehouse/
           - --conf spark.eventLog.dir=s3a://spark-logs/events
           - --conf spark.driver.extraJavaOptions="-Divy.cache.dir=/tmp -Divy.home=/tmp"
+          - --packages io.delta:delta-spark_2.12:3.2.0,org.apache.hadoop:hadoop-aws:3.3.4,org.apache.hadoop:hadoop-common:3.3.4,com.amazonaws:aws-java-sdk-bundle:1.12.262
         ports:
           - containerPort: 10000
             name: thrift
