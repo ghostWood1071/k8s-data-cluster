@@ -27,15 +27,15 @@ data:
     	</property>
     	<property>
     		<name>fs.s3a.access.key</name>
-    		<value>minio</value>
+    		<value>minioadmin</value>
     	</property>
     	<property>
     		<name>fs.s3a.secret.key</name>
-    		<value>minio@123</value>
+    		<value>minio@demo!</value>
     	</property>
     	<property>
     		<name>fs.s3a.endpoint</name>
-    		<value>http://minio:9000</value>
+    		<value>http://minio-0.storage.svc.cluster.local:9000</value>
     	</property>
     	<property>
     		<name>fs.s3a.path.style.access</name>
