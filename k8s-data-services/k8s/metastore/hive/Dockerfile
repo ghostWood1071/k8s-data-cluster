@@ -3,7 +3,7 @@ FROM apache/hive:4.0.0
 USER root
 RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 
-ENV HIVE_AUX_JARS_PATH=/opt/hive/auxlib
+ENV HIVE_AUX_JARS_PATH=/opt/hive/lib
 RUN mkdir -p ${HIVE_AUX_JARS_PATH}
 WORKDIR /tmp/jars
 
