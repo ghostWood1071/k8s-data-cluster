@@ -8,7 +8,7 @@ spec:
     storage: 4Gi
   accessModes:
     - ReadWriteOnce
-  storageClassName: local-path
+  storageClassName: hostpath
   persistentVolumeReclaimPolicy: Retain
   hostPath:
     path: /mnt/data/starrocks/logs-0
@@ -23,7 +23,7 @@ spec:
     storage: 4Gi
   accessModes:
     - ReadWriteOnce
-  storageClassName: local-path
+  storageClassName: hostpath
   persistentVolumeReclaimPolicy: Retain
   hostPath:
     path: /mnt/data/starrocks/logs-1
@@ -38,7 +38,7 @@ spec:
     storage: 4Gi
   accessModes:
     - ReadWriteOnce
-  storageClassName: local-path
+  storageClassName: hostpath
   persistentVolumeReclaimPolicy: Retain
   hostPath:
     path: /mnt/data/starrocks/meta-0
@@ -53,7 +53,7 @@ spec:
     storage: 4Gi
   accessModes:
     - ReadWriteOnce
-  storageClassName: local-path
+  storageClassName: hostpath
   persistentVolumeReclaimPolicy: Retain
   hostPath:
     path: /mnt/data/starrocks/meta-1
