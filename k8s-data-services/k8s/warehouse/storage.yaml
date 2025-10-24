@@ -57,3 +57,61 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   hostPath:
     path: /mnt/data/starrocks/meta-1
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-starrocks-be-data-0
+spec:
+  capacity:
+    storage: 4Gi
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: hostpath
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: /mnt/data/starrocks/be-0
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-starrocks-be-data-1
+spec:
+  capacity:
+    storage: 4Gi
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: hostpath
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: /mnt/data/starrocks/be-1
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-starrocks-be-logs-0
+spec:
+  capacity:
+    storage: 4Gi
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: hostpath
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: /mnt/data/starrocks/be-logs-0
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-starrocks-be-logs-1
+spec:
+  capacity:
+    storage: 4Gi
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: hostpath
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: /mnt/data/starrocks/be-logs-1
