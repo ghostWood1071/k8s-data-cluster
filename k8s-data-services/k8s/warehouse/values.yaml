@@ -1,60 +1,32 @@
 starrocks:
-  initPassword:
-    enabled: true
-    passwordSecret: starrocks-root-pass
+    initPassword:
+        enabled: true
+        # Set a password secret, for example:
+        # kubectl create secret generic starrocks-root-pass --from-literal=password='g()()dpa$$word'
+        passwordSecret: starrocks
 
-  # =======================
-  # FRONTEND (FE)
-  # =======================
-  starrocksFESpec:
-    replicas: 2
-    service:
-      type: LoadBalancer
-    resources:
-      requests:
-        cpu: 2
-        memory: 2Gi
-      limits:
-        cpu: 4
-        memory: 4Gi
-    nodeSelector:                      # Cho phép FE chạy cả master node
-      kubernetes.io/os: linux
-    tolerations:                       # Cho phép vượt taint master
-      - key: "node-role.kubernetes.io/control-plane"
-        effect: "NoSchedule"
-        operator: "Exists"
-    storageSpec:
-      name: fe
-      storageSize: 4Gi
-      storageClassName: local-path      # bắt buộc để tạo PVC
-      # mountPath mặc định: /opt/starrocks/fe/meta
+    starrocksFESpec:
+        replicas: 2
+        service:
+            type: LoadBalancer
+        resources:
+            requests:
+                cpu: 1
+                memory: 1Gi
+        storageSpec:
+            name: fe
 
-  # =======================
-  # BACKEND (BE)
-  # =======================
-  starrocksBeSpec:
-    replicas: 2
-    resources:
-      requests:
-        cpu: 2
-        memory: 2Gi
-      limits:
-        cpu: 4
-        memory: 4Gi
-    storageSpec:
-      name: be
-      storageSize: 4Gi
-      storageClassName: local-path      # PVC thực trên ổ local
-      # mountPath mặc định: /opt/starrocks/be/storage
+    starrocksBeSpec:
+        replicas: 2
+        resources:
+            requests:
+                cpu: 1
+                memory: 2Gi
+        storageSpec:
+            name: be
+            storageSize: 15Gi
 
-  # =======================
-  # FE PROXY
-  # =======================
-  starrocksFeProxySpec:
-    enabled: true
-    service:
-      type: LoadBalancer
-    resources:
-      requests:
-        cpu: 1
-        memory: 1Gi
+    starrocksFeProxySpec:
+        enabled: true
+        service:
+            type: LoadBalancer
