@@ -5,7 +5,7 @@ metadata:
   name: pv-starrocks-fe-logs-0
 spec:
   capacity:
-    storage: 2Gi
+    storage: 4Gi
   accessModes:
     - ReadWriteOnce
   storageClassName: local-path
@@ -20,7 +20,7 @@ metadata:
   name: pv-starrocks-fe-logs-1
 spec:
   capacity:
-    storage: 2Gi
+    storage: 4Gi
   accessModes:
     - ReadWriteOnce
   storageClassName: local-path
@@ -35,7 +35,7 @@ metadata:
   name: pv-starrocks-fe-meta-0
 spec:
   capacity:
-    storage: 2Gi
+    storage: 4Gi
   accessModes:
     - ReadWriteOnce
   storageClassName: local-path
@@ -50,7 +50,7 @@ metadata:
   name: pv-starrocks-fe-meta-1
 spec:
   capacity:
-    storage: 2Gi
+    storage: 4Gi
   accessModes:
     - ReadWriteOnce
   storageClassName: local-path
