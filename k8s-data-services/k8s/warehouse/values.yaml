@@ -3,7 +3,7 @@ starrocks:
         enabled: true
         # Set a password secret, for example:
         # kubectl create secret generic starrocks-root-pass --from-literal=password='g()()dpa$$word'
-        passwordSecret: starrocks
+        passwordSecret: starrocks-root-pass
 
     starrocksFESpec:
         replicas: 2
