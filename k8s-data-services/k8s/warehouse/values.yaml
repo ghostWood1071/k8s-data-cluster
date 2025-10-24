@@ -15,6 +15,8 @@ starrocks:
                 memory: 1Gi
         storageSpec:
             name: fe
+            storageSize: 4Gi
+            logStorageSize: 4Gi 
 
     starrocksBeSpec:
         replicas: 2
@@ -24,7 +26,8 @@ starrocks:
                 memory: 2Gi
         storageSpec:
             name: be
-            storageSize: 15Gi
+            storageSize: 4Gi
+            logStorageSize: 4Gi
 
     starrocksFeProxySpec:
         enabled: true
