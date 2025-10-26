@@ -36,9 +36,9 @@ postgresql:
           psql -U postgres -d postgres <<'SQL'
           DO $do$
           BEGIN
+            CREATE DATABASE airflow;
             CREATE ROLE airflow LOGIN PASSWORD 'airflow';
             ALTER ROLE airflow SUPERUSER;
-            CREATE DATABASE airflow;
           END
           $do$;
           SQL
