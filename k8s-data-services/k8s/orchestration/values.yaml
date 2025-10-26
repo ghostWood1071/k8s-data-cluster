@@ -37,17 +37,8 @@ postgresql:
           DO $do$
           BEGIN
             CREATE ROLE airflow LOGIN PASSWORD 'airflow';
-            CREATE DATABASE airflow OWNER airflow;
-            GRANT ALL PRIVILEGES ON DATABASE airflow TO airflow;
           END
           $do$;
-          
-          \connect airflow
-          ALTER SCHEMA public OWNER TO airflow;
-          ALTER ROLE airflow SET search_path = public;
-          ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES    TO airflow;
-          ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO airflow;
-          ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON FUNCTIONS TO airflow;
           SQL
 
 # Default airflow repository -- overridden by all the specific images below
