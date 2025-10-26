@@ -117,3 +117,10 @@ logs:
   persistence:
     enabled: true
     size: 1Gi
+
+createUserJob:
+  useHelmHooks: false
+  applyCustomEnv: false
+migrateDatabaseJob:
+  useHelmHooks: false
+  applyCustomEnv: false
