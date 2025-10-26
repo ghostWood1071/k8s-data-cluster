@@ -1,11 +1,3 @@
-# StorageClass cho hostPath
-apiVersion: storage.k8s.io/v1
-kind: StorageClass
-metadata:
-  name: hostpath
-provisioner: kubernetes.io/no-provisioner
-volumeBindingMode: WaitForFirstConsumer
----
 # PV cho Postgres
 apiVersion: v1
 kind: PersistentVolume
