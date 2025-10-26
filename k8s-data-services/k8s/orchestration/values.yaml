@@ -27,7 +27,7 @@ postgresql:
   auth:
     username: "airflow"
     password: "airflow"
-    enablePostgresUser: false
+    enablePostgresUser: true
   primary:
     extraEnvVars: # <-- inject ENV để dùng trong script
       - name: AIRFLOW_USER
@@ -37,50 +37,28 @@ postgresql:
       - name: AIRFLOW_DB
         value: "airflow"
     initdb:
-      # scripts nhận cả .sh lẫn .sql; Bitnami sẽ chạy khi PVC TRỐNG
-      scripts:
-        00-airflow.sh: |
-          #!/bin/bash
-          set -euo pipefail
-          # superuser password cho postgres
-          export PGPASSWORD="postgres"
-          
-          # Giá trị mặc định nếu ENV không có
-          : "${AIRFLOW_USER:=airflow}"
-          : "${AIRFLOW_PASSWORD:=airflow}"
-          : "${AIRFLOW_DB:=airflow}"
-          
-          # Dùng psql -v để truyền biến an toàn vào DO block (format %I/%L tránh injection)
-          psql -v ON_ERROR_STOP=1 -U postgres -d postgres \
-               -v air_user="$AIRFLOW_USER" \
-               -v air_pw="$AIRFLOW_PASSWORD" \
-               -v air_db="$AIRFLOW_DB" <<'SQL'
-          DO $do$
-          DECLARE
-            u text := :'air_user';
-            pw text := :'air_pw';
-            db text := :'air_db';
-          BEGIN
-            IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = u) THEN
-              EXECUTE format('CREATE ROLE %I LOGIN PASSWORD %L', u, pw);
-            END IF;
-          
-            IF NOT EXISTS (SELECT 1 FROM pg_database WHERE datname = db) THEN
-              EXECUTE format('CREATE DATABASE %I OWNER %I', db, u);
-            END IF;
-          
-            -- Quyền/owner tối thiểu cho Airflow
-            EXECUTE format('GRANT ALL PRIVILEGES ON DATABASE %I TO %I', db, u);
-          END
-          $do$;
-          
-          \connect :'air_db'
-          ALTER SCHEMA public OWNER TO :"air_user";
-          ALTER ROLE :"air_user" SET search_path = public;
-          ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES    TO :"air_user";
-          ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO :"air_user";
-          ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON FUNCTIONS TO :"air_user";
-          SQL
+      initdb:
+        user: postgres
+        password: "postgres"
+        scripts:
+          00-airflow.sql: |
+            DO $$
+            BEGIN
+              IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'airflow') THEN
+                CREATE ROLE airflow LOGIN PASSWORD 'airflow';
+              END IF;
+              IF NOT EXISTS (SELECT 1 FROM pg_database WHERE datname = 'airflow') THEN
+                CREATE DATABASE airflow OWNER airflow;
+              END IF;
+              GRANT ALL PRIVILEGES ON DATABASE airflow TO airflow;
+            END$$;
+            \connect airflow
+            ALTER SCHEMA public OWNER TO airflow;
+            ALTER ROLE airflow SET search_path = public;
+            ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES    TO airflow;
+            ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO airflow;
+            ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON FUNCTIONS TO airflow;
+
 # Default airflow repository -- overridden by all the specific images below
 defaultAirflowRepository: ghostwood/airflow
 # Default airflow tag to deploy
