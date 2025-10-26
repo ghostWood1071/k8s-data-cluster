@@ -43,7 +43,7 @@ postgresql:
           #!/bin/bash
           set -euo pipefail
           # superuser password cho postgres
-          export PGPASSWORD="${POSTGRESQL_POSTGRES_PASSWORD:-${POSTGRES_PASSWORD:-adminpass}}"
+          export PGPASSWORD="${POSTGRESQL_POSTGRES_PASSWORD:-${POSTGRES_PASSWORD:-postgres}}"
           
           # Giá trị mặc định nếu ENV không có
           : "${AIRFLOW_USER:=airflow}"
