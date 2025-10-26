@@ -40,7 +40,7 @@ postgresql:
             CREATE ROLE airflow LOGIN PASSWORD 'airflow';
             ALTER ROLE airflow SUPERUSER;
             ALTER DATABASE airflow OWNER TO airflow;
-            \connect airflow
+            \connect airflow;
             ALTER SCHEMA public OWNER TO airflow;
             GRANT USAGE, CREATE ON SCHEMA public TO airflow;
             GRANT ALL PRIVILEGES ON ALL TABLES    IN SCHEMA public TO airflow;
