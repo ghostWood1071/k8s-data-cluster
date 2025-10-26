@@ -38,6 +38,7 @@ postgresql:
           BEGIN
             CREATE ROLE airflow LOGIN PASSWORD 'airflow';
             CREATE DATABASE airflow;
+            ALTER ROLE airflow SUPERUSER;
           END
           $do$;
           SQL
