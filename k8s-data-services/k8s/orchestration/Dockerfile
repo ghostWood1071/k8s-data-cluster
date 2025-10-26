@@ -17,6 +17,3 @@ ENV PATH="${JAVA_HOME}/bin:${PATH}"
 COPY requirements.txt /requirements.txt
 USER airflow
 RUN pip install --no-cache-dir -r /requirements.txt
-
-
-WORKDIR /opt/airflow
