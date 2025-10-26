@@ -38,7 +38,7 @@ spec:
     storage: 1Gi
   accessModes:
     - ReadWriteMany
-  storageClassName: hostpath
+  storageClassName: local-path
   persistentVolumeReclaimPolicy: Retain
   hostPath:
     path: /mnt/data/airflow/dags
