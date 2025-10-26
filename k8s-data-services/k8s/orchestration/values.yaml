@@ -25,33 +25,9 @@ postgresql:
     tag: "latest"
     pullPolicy: IfNotPresent
   auth:
-    enablePostgresUser: true
-#  primary:
-#    initdb:
-#      scripts:
-#        00-airflow.sh: |
-#          #!/bin/bash
-#          set -euo pipefail
-#          export PGPASSWORD="postgres"
-#          psql -U postgres -d postgres <<'SQL'
-#          DO $do$
-#          BEGIN
-#            CREATE DATABASE airflow;
-#            CREATE ROLE airflow LOGIN PASSWORD 'airflow';
-#            ALTER ROLE airflow SUPERUSER;
-#            ALTER DATABASE airflow OWNER TO airflow;
-#            \connect airflow;
-#            ALTER SCHEMA public OWNER TO airflow;
-#            GRANT USAGE, CREATE ON SCHEMA public TO airflow;
-#            GRANT ALL PRIVILEGES ON ALL TABLES    IN SCHEMA public TO airflow;
-#            GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO airflow;
-#            GRANT ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA public TO airflow;
-#            ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES    TO airflow;
-#            ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO airflow;
-#            ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON FUNCTIONS TO airflow;
-#          END
-#          $do$;
-#          SQL
+    username: airflow
+    password: airflow
+    enablePostgresUser: false
 
 # Default airflow repository -- overridden by all the specific images below
 defaultAirflowRepository: ghostwood/airflow
