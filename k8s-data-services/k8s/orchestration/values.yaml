@@ -37,6 +37,7 @@ postgresql:
           DO $do$
           BEGIN
             CREATE ROLE airflow LOGIN PASSWORD 'airflow';
+            CREATE DATABASE airflow;
           END
           $do$;
           SQL
