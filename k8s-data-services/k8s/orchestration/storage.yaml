@@ -53,7 +53,7 @@ spec:
     storage: 2Gi
   accessModes:
     - ReadWriteMany
-  storageClassName: local-path
+  storageClassName: host-path
   persistentVolumeReclaimPolicy: Retain
   hostPath:
     path: /mnt/data/airflow/logs
