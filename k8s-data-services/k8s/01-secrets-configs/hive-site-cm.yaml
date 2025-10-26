@@ -35,7 +35,7 @@ data:
     	</property>
     	<property>
     		<name>fs.s3a.endpoint</name>
-    		<value>http://minio-0.storage.svc.cluster.local:9000</value>
+    		<value>http://minio.storage.svc.cluster.local:9000</value>
     	</property>
     	<property>
     		<name>fs.s3a.path.style.access</name>
