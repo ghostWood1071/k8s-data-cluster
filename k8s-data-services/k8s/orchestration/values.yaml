@@ -25,39 +25,36 @@ postgresql:
     tag: "latest"
     pullPolicy: IfNotPresent
   auth:
-    username: "airflow"
-    password: "airflow"
     enablePostgresUser: true
   primary:
-    extraEnvVars: # <-- inject ENV để dùng trong script
-      - name: AIRFLOW_USER
-        value: "airflow"
-      - name: AIRFLOW_PASSWORD
-        value: "airflow"
-      - name: AIRFLOW_DB
-        value: "airflow"
     initdb:
-      initdb:
-        user: postgres
-        password: "postgres"
-        scripts:
-          00-airflow.sql: |
-            DO $$
-            BEGIN
-              IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'airflow') THEN
-                CREATE ROLE airflow LOGIN PASSWORD 'airflow';
-              END IF;
-              IF NOT EXISTS (SELECT 1 FROM pg_database WHERE datname = 'airflow') THEN
-                CREATE DATABASE airflow OWNER airflow;
-              END IF;
-              GRANT ALL PRIVILEGES ON DATABASE airflow TO airflow;
-            END$$;
-            \connect airflow
-            ALTER SCHEMA public OWNER TO airflow;
-            ALTER ROLE airflow SET search_path = public;
-            ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES    TO airflow;
-            ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO airflow;
-            ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON FUNCTIONS TO airflow;
+      scripts:
+        00-airflow.sh: |
+          #!/bin/bash
+          set -euo pipefail
+          psql -U postgres -d postgres <<'SQL'
+          DO $do$
+          BEGIN
+            IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'airflow') THEN
+              CREATE ROLE airflow LOGIN PASSWORD 'airflow';
+            END IF;
+          
+            IF NOT EXISTS (SELECT 1 FROM pg_database WHERE datname = 'airflow') THEN
+              CREATE DATABASE airflow OWNER airflow;
+            END IF;
+          
+            GRANT ALL PRIVILEGES ON DATABASE airflow TO airflow;
+          END
+          $do$;
+          
+          \connect airflow
+          ALTER SCHEMA public OWNER TO airflow;
+          ALTER ROLE airflow SET search_path = public;
+          
+          ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES    TO airflow;
+          ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO airflow;
+          ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON FUNCTIONS TO airflow;
+          SQL
 
 # Default airflow repository -- overridden by all the specific images below
 defaultAirflowRepository: ghostwood/airflow
