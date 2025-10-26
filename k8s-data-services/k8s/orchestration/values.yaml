@@ -8,8 +8,8 @@ cleanup:
 
 data:
   metadataConnection:
-    user: airflow
-    pass: airflow
+    user: postgres
+    pass: postgres
     protocol: postgresql
     host: airflow-postgresql.orchestration.svc.cluster.local
     port: 5432
@@ -25,9 +25,9 @@ postgresql:
     tag: "latest"
     pullPolicy: IfNotPresent
   auth:
-    username: airflow
-    password: airflow
-    enablePostgresUser: false
+    username: postgres
+    password: postgres
+    enablePostgresUser: true
 
 # Default airflow repository -- overridden by all the specific images below
 defaultAirflowRepository: ghostwood/airflow
