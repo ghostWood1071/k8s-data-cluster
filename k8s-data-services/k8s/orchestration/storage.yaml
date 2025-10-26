@@ -12,36 +12,7 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   hostPath:
     path: /mnt/data/airflow/postgres
----
-# PV cho Redis
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: pv-airflow-redis
-spec:
-  capacity:
-    storage: 512Mi
-  accessModes:
-    - ReadWriteOnce
-  storageClassName: hostpath
-  persistentVolumeReclaimPolicy: Retain
-  hostPath:
-    path: /mnt/data/airflow/redis
----
-# PV cho DAGs
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: pv-airflow-dags
-spec:
-  capacity:
-    storage: 1Gi
-  accessModes:
-    - ReadWriteMany
-  storageClassName: hostpath
-  persistentVolumeReclaimPolicy: Retain
-  hostPath:
-    path: /mnt/data/airflow/dags
+
 ---
 # PV cho Logs
 apiVersion: v1
@@ -57,3 +28,18 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   hostPath:
     path: /mnt/data/airflow/logs
+---
+# PV cho DAGs
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-airflow-dags
+spec:
+  capacity:
+    storage: 2Gi
+  accessModes:
+    - ReadWriteMany
+  storageClassName: hostpath
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: /mnt/data/airflow/dags
