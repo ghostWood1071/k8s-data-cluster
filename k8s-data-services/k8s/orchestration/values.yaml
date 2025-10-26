@@ -36,14 +36,8 @@ postgresql:
           psql -U postgres -d postgres <<'SQL'
           DO $do$
           BEGIN
-            IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'airflow') THEN
-              CREATE ROLE airflow LOGIN PASSWORD 'airflow';
-            END IF;
-          
-            IF NOT EXISTS (SELECT 1 FROM pg_database WHERE datname = 'airflow') THEN
-              CREATE DATABASE airflow OWNER airflow;
-            END IF;
-          
+            CREATE ROLE airflow LOGIN PASSWORD 'airflow';
+            CREATE DATABASE airflow OWNER airflow;
             GRANT ALL PRIVILEGES ON DATABASE airflow TO airflow;
           END
           $do$;
@@ -51,7 +45,6 @@ postgresql:
           \connect airflow
           ALTER SCHEMA public OWNER TO airflow;
           ALTER ROLE airflow SET search_path = public;
-          
           ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES    TO airflow;
           ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO airflow;
           ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON FUNCTIONS TO airflow;
