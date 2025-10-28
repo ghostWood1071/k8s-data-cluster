@@ -78,16 +78,21 @@ Create namespaces
   
 
     kubectl apply -f 01-secrets-configs
-Deploy metastore service (hive + postgres)
+## Deploy metastore services (hive + postgres)
 
     kubectl apply -f metastore
-Deploy orchestration service (postgres + airflow)
-
+## Deploy orchestration services (postgres + airflow)
     cd ./orchestration
     kubectl apply -f storage.yaml
     helm repo add apache-airflow https://airflow.apache.org
     helm install airflow apache-airflow/airflow -n orchestration -f values.yaml
- ✍Use file Docker file in hive folder to build custom image
+ 📌Use file Docker file in hive folder to build custom image
+ 
+ 📌After install grant permission to airflow's volumes
+ 
+
+    sudo chmod -R 777 /mnt/data/airflow/dags
+    sudo chmod -R 777 /mnt/data/airflow/logs
 
 ## Deploy MinIO
 Change to Minio cluster
