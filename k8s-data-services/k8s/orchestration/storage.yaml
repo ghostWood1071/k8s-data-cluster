@@ -11,7 +11,7 @@ spec:
   storageClassName: hostpath
   persistentVolumeReclaimPolicy: Retain
   hostPath:
-    path: /mnt/data/airflow/postgres
+    path: /data/airflow/postgres
 
 ---
 # PV cho Logs
@@ -27,7 +27,7 @@ spec:
   storageClassName: hostpath
   persistentVolumeReclaimPolicy: Retain
   hostPath:
-    path: /mnt/data/airflow/logs
+    path: /data/airflow/logs
 ---
 # PV cho DAGs
 apiVersion: v1
@@ -42,4 +42,4 @@ spec:
   storageClassName: hostpath
   persistentVolumeReclaimPolicy: Retain
   hostPath:
-    path: /mnt/data/airflow/dags
+    path: /data/airflow/dags
