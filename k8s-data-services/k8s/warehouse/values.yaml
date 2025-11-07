@@ -23,10 +23,10 @@ starrocks:
         resources:
             requests:
                 cpu: 14
-                memory: 16Gi
+                memory: 30Gi
             limits:
                 cpu: 14
-                memory: 16Gi
+                memory: 30Gi
         storageSpec:
             name: be
             storageSize: 130Gi
