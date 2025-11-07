@@ -4,18 +4,15 @@ metadata:
   name: minio-svc
   namespace: storage
 spec:
-  type: NodePort
   ports:
   - name: cluster
     port: 9000
     protocol: TCP
-    targetPort: 9000
-    nodePort: 30900
+    targetPort: 30090
   - name: console
     port: 9001
     protocol: TCP
-    targetPort: 9001
-    nodePort: 30901
+    targetPort: 30091
   selector:
     app: minio
   type: ClusterIP
