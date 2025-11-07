@@ -29,12 +29,12 @@ spec:
     port: 9000
     protocol: TCP
     targetPort: 9000
-    nodePort: 30090
+    nodePort: 30900
   - name: console
     port: 9001
     protocol: TCP
     targetPort: 9001
-    nodePort: 30091
+    nodePort: 30901
   selector:
     app: minio
   type: NodePort

@@ -29,7 +29,7 @@ starrocks:
                 memory: 16Gi
         storageSpec:
             name: be
-            storageSize: 140Gi
+            storageSize: 130Gi
             logStorageSize: 4Gi
 
     starrocksFeProxySpec:
