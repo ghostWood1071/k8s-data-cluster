@@ -90,9 +90,24 @@ Create namespaces
  
  📌After install grant permission to airflow's volumes
  
+    sudo mkdir -p /data/airflow/dags/
+    sudo mkdir -p /data/airflow/logs/
+    sudo mkdir -p /data/airflow/postgres
+    sudo chmod -R 777 /data/airflow/postgres
+    sudo chmod -R 777 /data/airflow/dags
+    sudo chmod -R 777 /data/airflow/logs
+    
+    kubectl patch pvc data-airflow-postgresql-0 -n orchestration --type=merge -p '{"spec":{"volumeName":"pv-airflow-postgres"}}'
 
-    sudo chmod -R 777 /mnt/data/airflow/dags
-    sudo chmod -R 777 /mnt/data/airflow/logs
+    kubectl patch pvc airflow-dags -n orchestration --type=merge -p '{"spec":{"volumeName":"pv-airflow-dags"}}'
+
+    kubectl patch pvc airflow-logs -n orchestration --type=merge -p '{"spec":{"volumeName":"pv-airflow-logs"}}'
+    
+    kubectl patch pvc airflow-logs -n orchestration -p '{"spec":{"storageClassName":"hostpath"}}'
+    
+    kubectl patch pvc airflow-dags -n orchestration -p '{"spec":{"storageClassName":"hostpath"}}'
+    
+    kubectl patch pvc data-airflow-postgresql-0 -n orchestration -p '{"spec":{"storageClassName":"hostpath"}}'
 
 ## Deploy MinIO
 Change to Minio cluster
