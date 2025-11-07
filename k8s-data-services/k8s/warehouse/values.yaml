@@ -11,8 +11,8 @@ starrocks:
             type: LoadBalancer
         resources:
             requests:
-                cpu: 1
-                memory: 1Gi
+                cpu: 4
+                memory: 4Gi
         storageSpec:
             name: fe
             storageSize: 4Gi
@@ -22,11 +22,11 @@ starrocks:
         replicas: 2
         resources:
             requests:
-                cpu: 1
-                memory: 2Gi
+                cpu: 14
+                memory: 32Gi
         storageSpec:
             name: be
-            storageSize: 4Gi
+            storageSize: 145Gi
             logStorageSize: 4Gi
 
     starrocksFeProxySpec:
