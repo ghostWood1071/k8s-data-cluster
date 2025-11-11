@@ -22,14 +22,14 @@ starrocks:
         replicas: 2
         resources:
             requests:
-                cpu: 14
-                memory: 30Gi
+                cpu: 10
+                memory: 20Gi
             limits:
                 cpu: 14
                 memory: 30Gi
         storageSpec:
             name: be
-            storageSize: 110Gi
+            storageSize: 50Gi
             logStorageSize: 4Gi
 
     starrocksFeProxySpec:

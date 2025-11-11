@@ -65,7 +65,7 @@ metadata:
   name: pv-starrocks-be-data-0
 spec:
   capacity:
-    storage: 110Gi
+    storage: 50Gi
   accessModes:
     - ReadWriteOnce
   storageClassName: hostpath
@@ -79,7 +79,7 @@ metadata:
   name: pv-starrocks-be-data-1
 spec:
   capacity:
-    storage: 110Gi
+    storage: 50Gi
   accessModes:
     - ReadWriteOnce
   storageClassName: hostpath
