@@ -1,26 +1,18 @@
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: spark-allow-kafka-egress
-  namespace: compute  
+  name: spark-egress-allow-all
+  namespace: compute          
 spec:
   podSelector:
     matchLabels:
-      app: spark               
+      app: spark                        
   policyTypes:
   - Egress
   egress:
   - to:
     - ipBlock:
-        cidr: 192.168.73.0/24   
-    ports:
-    - protocol: TCP
-      port: 9092                
+        cidr: 0.0.0.0/0                 
   - to:
     - ipBlock:
-        cidr: 0.0.0.0/0
-    ports:
-    - protocol: UDP
-      port: 53
-    - protocol: TCP
-      port: 53
+        cidr: ::/0                      
