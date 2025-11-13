@@ -21,5 +21,5 @@ RUN curl -L https://repo1.maven.org/maven2/org/slf4j/slf4j-api/2.0.7/slf4j-api-2
 RUN curl -L https://repo1.maven.org/maven2/org/xerial/snappy/snappy-java/1.1.10.5/snappy-java-1.1.10.5.jar -o /opt/spark/jars/org.xerial.snappy_snappy-java-1.1.10.5.jar
 RUN curl -L -o /opt/spark/jars/delta-storage-3.2.0.jar https://repo1.maven.org/maven2/io/delta/delta-storage/3.2.0/delta-storage-3.2.0.jar
 RUN curl -L -o /opt/spark/jars/ojdbc11-23.7.0.25.01.jar https://repo1.maven.org/maven2/com/oracle/database/jdbc/ojdbc11/23.7.0.25.01/ojdbc11-23.7.0.25.01.jar
-RUN apt-get iputils-ping
+RUN apt-get install -y iputils-ping 
 USER spark
