@@ -1,27 +1,19 @@
-apiVersion: projectcalico.org/v3
+apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: allow-kafka-egress
-  namespace: compute     # đổi theo namespace bạn đang chạy Spark
+  namespace: compute           
 spec:
-  selector: all()          # áp dụng cho toàn bộ pod trong namespace
-  types:
+  podSelector: {}              
+  policyTypes:
     - Egress
   egress:
-    - action: Allow
-      protocol: TCP
-      destination:
-        nets:
-          - 192.168.73.0/24   
-        ports:
-          - 9092              
-
-    - action: Allow
-      protocol: UDP
-      destination:
-        nets:
-          - 192.168.73.0/24
-        ports:
-          - 9092              
-
-    - action: Allow
+    - to:
+        - ipBlock:
+            cidr: 192.168.73.0/24
+      ports:
+        - protocol: TCP
+          port: 9092
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
