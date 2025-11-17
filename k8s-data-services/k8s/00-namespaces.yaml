@@ -26,3 +26,9 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: storage
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cdc
