@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: jobmanager
-          image: flink:1.18
+          image: ghostwood/flink-mbs:1.0.0
           args: ["jobmanager"]
           ports:
             - containerPort: 8081    # Web UI
@@ -41,5 +41,5 @@ spec:
       targetPort: 6123
     - name: ui
       port: 8081
-      nodePort: 30081
+      nodePort: 30830
       targetPort: 8081

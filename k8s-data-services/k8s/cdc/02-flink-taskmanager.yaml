@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: taskmanager
-          image: flink:1.18
+          image: ghostwood/flink-mbs:1.0.0
           args: ["taskmanager"]
           env:
             - name: FLINK_PROPERTIES
