@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: jobmanager
-          image: ghostwood/flink-mbs:1.0.0
+          image: ghostwood/flink-mbs:1.0.2
           args: ["jobmanager"]
           ports:
             - containerPort: 8081    # Web UI
