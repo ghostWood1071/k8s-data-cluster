@@ -16,15 +16,4 @@ spec:
         - "lga-ext-kafka57"
   containers:
     - name: spark-container
-      image: ghostwood/mbs-spark:1.0.7-protobuf  # Thay thế với image Spark của bạn
-      ports:
-        - containerPort: 7077  # Cổng Spark master
-        - containerPort: 8081  # Web UI của Spark
-      env:
-        - name: SPARK_HOME
-          value: /opt/spark
-        - name: SPARK_LOCAL_DIRS
-          value: /tmp/spark
-        - name: SPARK_CONF_DIR
-          value: /opt/spark/conf
-  restartPolicy: OnFailure  # Chỉ khởi động lại nếu pod gặp lỗi
+      image: ghostwood/mbs-spark:1.0.7-protobuf 
