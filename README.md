@@ -2,11 +2,11 @@
 Down load source from git: https://github.com/ghostWood1071/k8s-data-cluster.git
 
     git clone https://github.com/ghostWood1071/k8s-data-cluster.git
- This setup apply for 9 machines:
+This setup apply for 9 machines:
 
- - [ ] 3 machines for k8s cluster  
- - [ ] 3 machines for starrock cluster  
- - [ ] 3 machines for minio cluster
+- [ ] 3 machines for k8s cluster
+- [ ] 3 machines for starrock cluster
+- [ ] 3 machines for minio cluster
 
 ## Cloud deployment
 
@@ -26,7 +26,7 @@ Change storage in file terraform.tfvars
     svc_gp3_throughput = 250  
     starrock_size_gb = 100
 
- Create AWS credential 
+Create AWS credential
 
     aws configure
 Apply change to AWS
@@ -41,19 +41,19 @@ If install in physical machine please run .sh files from folder: *k8s-data-clust
 
     ./common.sh #install k8s to machine
     ./master.sh #install additional packkages to master machine
- Install calico network
+Install calico network
 
      kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.28.3/manifests/calico.yaml
 
 ## Join all workers
-On master node: 
+On master node:
 
     kubeadm token create --print-join-command
 Result from above command like:
 
     kubeadm join <master_ip>:6443 --token <token> --discovery-token-ca-cert-hash <sha256>
 Paste this command to worker machines:
-		sudo kubeadm join <master_ip>:6443 --token <token> --discovery-token-ca-cert-hash <sha256>
+sudo kubeadm join <master_ip>:6443 --token <token> --discovery-token-ca-cert-hash <sha256>
 Verify the join:
 
     kubectl get node -A -o wide
@@ -65,17 +65,17 @@ We will not deploy Starrock by k8s
 Move to folder *k8s-data-services/k8s*
 
     cd ../k8s-data-services/k8s
-  Install Helm
-  
+Install Helm
+
 
     curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 
 Create namespaces
 
     kubectl apply -f 00.namespace.yaml
-  
-  Apply secret config and service account
-  
+
+Apply secret config and service account
+
 
     kubectl apply -f 01-secrets-configs
 ## Deploy metastore services (hive + postgres)
@@ -86,10 +86,10 @@ Create namespaces
     kubectl apply -f storage.yaml
     helm repo add apache-airflow https://airflow.apache.org
     helm install airflow apache-airflow/airflow -n orchestration -f values.yaml
- 📌Use file Docker file in hive folder to build custom image
- 
- 📌After install grant permission to airflow's volumes
- 
+📌Use file Docker file in hive folder to build custom image
+
+📌After install grant permission to airflow's volumes
+
     sudo mkdir -p /data/airflow/dags/
     sudo mkdir -p /data/airflow/logs/
     sudo mkdir -p /data/airflow/postgres
@@ -113,70 +113,32 @@ Create namespaces
 Change to Minio cluster
 
     kubectl apply -f storage
-## Deploy Starrock
-Install Java 11 on 3 machines
-    sudo apt update
-	sudo apt install openjdk-11-jdk
-Edit .bashrc file to export JAVA_HOME and edit PATH variable
+## Deploy Starrocks
 
-    nano .bashrc
-Insert this to .bashrc file in 3 machines:
+    helm repo add starrocks https://starrocks.github.io/starrocks-kubernetes-operator
+	helm repo update
+	kubectl create secret generic starrocks-root-pass --from-literal=password='g()()dpa$$word' -n warehouse
+	helm install starrocks starrocks/kube-starrocks -f values.yaml -n warehouse --create-namespace
+	helm uninstall starrocks -n warehouse
+	helm upgrade --install starrocks starrocks/kube-starrocks -n warehouse --create-namespace -f values.yaml
+    kubectl patch pvc fe-log-kube-starrocks-fe-0 -n warehouse --type=merge -p '{"spec":{"volumeName":"pv-starrocks-fe-logs-0", "storageClassName":"hostpath"}}'
+	kubectl patch pvc fe-log-kube-starrocks-fe-1 -n warehouse --type=merge -p '{"spec":{"volumeName":"pv-starrocks-fe-logs-1", "storageClassName":"hostpath"}}'
+	kubectl patch pvc fe-meta-kube-starrocks-fe-0 -n warehouse --type=merge -p '{"spec":{"volumeName":"pv-starrocks-fe-meta-0", "storageClassName":"hostpath"}}'
+	kubectl patch pvc fe-meta-kube-starrocks-fe-1 -n warehouse --type=merge -p '{"spec":{"volumeName":"pv-starrocks-fe-meta-1", "storageClassName":"hostpath"}}'
+	kubectl patch pvc be-data-kube-starrocks-be-0 -n warehouse --type=merge -p '{"spec":{"volumeName":"pv-starrocks-be-data-0", "storageClassName":"hostpath"}}'
+	kubectl patch pvc be-data-kube-starrocks-be-1 -n warehouse --type=merge -p '{"spec":{"volumeName":"pv-starrocks-be-data-1", "storageClassName":"hostpath"}}'
+	kubectl patch pvc be-log-kube-starrocks-be-0 -n warehouse --type=merge -p '{"spec":{"volumeName":"pv-starrocks-be-logs-0", "storageClassName":"hostpath"}}'
+	kubectl patch pvc be-log-kube-starrocks-be-1 -n warehouse --type=merge -p '{"spec":{"volumeName":"pv-starrocks-be-logs-1", "storageClassName":"hostpath"}}'
+	kubectl patch svc kube-starrocks-fe-service  -n warehouse -p '{"spec": {"type": "NodePort", "ports": [{"port": 9030, "nodePort": 30030, "protocol": "TCP", "targetPort": 9030}]}}'
 
-	export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
-	export PATH="${JAVA_HOME}/bin:${PATH}"
-Apply change:
-	
+## Create Service Account for Spark
 
-    source ~/.bashrc
-Download Starrock installation files in 3 machines:
+    kubectl apply -f compute
 
-    wget https://releases.starrocks.io/starrocks/StarRocks-3.3.19-ubuntu-amd64.tar.gz
-    tar -xzvf StarRocks-3.3.19-ubuntu-amd64.tar.gz
-    mv StarRocks-3.3.19-ubuntu-amd64 starrocks
-Create metadata and data folder for FE and BE in 3 machines:
+##  Install Flink
 
-     sudo mv starrocks /opt/starrocks  
-     sudo mkdir -p /data/starrocks/meta
-     sudo mkdir -p /data/starrocks/storage
-     sudo mkdir -p /data/starrocks/meta
-Edit /opt/starrocks/fe/conf/fe.conf in 3 machines, insert 3 line below:
 
-	    priority_networks = <ip_machine_1> <ip_machine_2> <ip_machine_3>
-	    JAVA_HOME = /usr/lib/jvm/java-11-openjdk-amd64
-	    meta_dir = /data/starrocks/meta
-
-> *priority_networks look like this:  * `priority_networks = 172.31.34.95/20 172.31.39.190/20 172.31.41.40/20`
-
-Edit /opt/starrocks/be/conf/be.conf in 3 machines, insert 3 row below:
-
-	    storage_root_path = /data/starrocks/storage
-	    priority_networks = priority_networks = <ip_machine_1> <ip_machine_2> <ip_machine_3>
-	    JAVA_HOME = /usr/lib/jvm/java-11-openjdk-amd64 
-
-> *priority_networks look like this:  * `priority_networks = 172.31.34.95/20 172.31.39.190/20 172.31.41.40/20`
-
-Grant permission to execution files in 3 machines:
-
-	    chmod +x /opt/starrocks/be/bin/start_be.sh
-	    chmod +x /opt/starrocks/fe/bin/start_fe.sh
-Run BE in 3 machines:
-
-	    sudo su
-	    /opt/starrocks/be/bin/start_be.sh --daemon
-Run FE in master node:
-
-    sudo su
-    /opt/starrocks/fe/bin/start_fe.sh --daemon
-In master node run this:
-
-    mysql -h <IP_FE_leader> -P9030 -uroot
-Then run sql commands:
-
-	    ALTER SYSTEM ADD BACKEND "<ip_node_1>:9050", "<ip_node_2>:9050";
-	    ALTER SYSTEM ADD FOLLOWER "<ip_node_1>:9010";
-	    ALTER SYSTEM ADD FOLLOWER "<ip_node_2>:9010";
-	    
-In 2 worker node run this command:
-
-    /opt/starrocks/fe/bin/start_fe.sh --helper <master_node>:9010 --daemon
-
+    kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.18.2/cert-manager.yaml
+    helm repo add flink-operator-repo https://downloads.apache.org/flink/flink-kubernetes-operator-1.13.0
+	helm repo update
+	helm install flink-kubernetes-operator flink-operator-repo/flink-kubernetes-operator --namespace cdc --create-namespace --set watchNamespaces="{cdc}"
