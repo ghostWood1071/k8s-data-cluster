@@ -27,5 +27,5 @@ df_customer = df_customer.withColumn("partition_date", date_format(df_customer["
    .partitionBy("partition_date")
    .saveAsTable("bronze.customer_raw"))
 
-print("✅ Created Delta tables and registered in Hive.")
+print("Created Delta tables and registered in Hive.")
 spark.stop()

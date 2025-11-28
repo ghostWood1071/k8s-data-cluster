@@ -29,13 +29,9 @@ postgresql:
     password: postgres
     enablePostgresUser: true
 
-# Default airflow repository -- overridden by all the specific images below
 defaultAirflowRepository: ghostwood/airflow
-# Default airflow tag to deploy
 defaultAirflowTag: "2.0.3"
-# Default airflow digest. If specified, it takes precedence over tag
 defaultAirflowDigest: ~
-# Airflow version (Used to make some decisions based on Airflow Version being deployed)
 airflowVersion: "2.10.3"
 
 dagProcessor:
@@ -85,17 +81,10 @@ triggerer:
 dags:
   persistence:
     annotations: {}
-    # Enable persistent volume for storing dags
     enabled: true
-    # Volume size for dags
     size: 1Gi
-    # If using a custom storageClass, pass name here
-    # storageClassName: longhorn
-    # access mode of the persistent volume
     accessMode: ReadWriteMany
-    ## the name of an existing PVC to use
     existingClaim:
-    ## optional subpath for dag volume mount
     subPath: ~
   gitSync:
     enabled: false

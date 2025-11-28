@@ -27,10 +27,10 @@ spec:
           value: "minio.miniodemo.xyz"
         image: minio/minio:latest
         args:
-        - server   # who are our servers in cluster (below)
+        - server   
         - http://minio-0.minio.storage.svc.cluster.local/data
         - http://minio-1.minio.storage.svc.cluster.local/data
-        - --console-address   # which port for console
+        - --console-address   
         - :9001
         ports:
         - containerPort: 9000

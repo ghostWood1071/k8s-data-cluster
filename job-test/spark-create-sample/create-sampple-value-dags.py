@@ -4,7 +4,6 @@ from datetime import datetime
 
 default_args = {"owner": "airflow", "retries": 0}
 
-# Maven coordinates (Spark sẽ tự tải)
 PACKAGES = ",".join([
     "io.delta:delta-spark_2.12:3.2.0",
     "org.apache.hadoop:hadoop-aws:3.3.4",

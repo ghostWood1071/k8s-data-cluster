@@ -23,5 +23,5 @@ spark.sql("CREATE DATABASE IF NOT EXISTS test_db")
 spark.sql("CREATE TABLE IF NOT EXISTS test_db.customer USING DELTA LOCATION 's3a://warehouse/delta/customer'")
 spark.sql("CREATE TABLE IF NOT EXISTS test_db.orders USING DELTA LOCATION 's3a://warehouse/delta/orders'")
 
-print("✅ Created Delta tables and registered in Hive.")
+print("Created Delta tables and registered in Hive.")
 spark.stop()

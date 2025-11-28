@@ -5,9 +5,9 @@ metadata:
   namespace: compute
 subjects:
   - kind: ServiceAccount
-    name: airflow-worker          # ✅ tên SA của airflow worker (cố định)
-    namespace: orchestration      # ✅ namespace airflow chạy
+    name: airflow-worker          
+    namespace: orchestration      
 roleRef:
   kind: ClusterRole
-  name: spark-role                # dùng lại role bạn đã tạo
+  name: spark-role               
   apiGroup: rbac.authorization.k8s.io
