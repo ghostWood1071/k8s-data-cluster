@@ -1,0 +1,37 @@
+starrocks:
+    initPassword:
+        enabled: true
+        # kubectl create secret generic starrocks-root-pass --from-literal=password='g()()dpa$$word'
+        passwordSecret: starrocks-root-pass
+
+    starrocksFESpec:
+        replicas: 2
+        service:
+            type: LoadBalancer
+        resources:
+            requests:
+                cpu: 4
+                memory: 4Gi
+        storageSpec:
+            name: fe
+            storageSize: 4Gi
+            logStorageSize: 4Gi 
+
+    starrocksBeSpec:
+        replicas: 2
+        resources:
+            requests:
+                cpu: 10
+                memory: 20Gi
+            limits:
+                cpu: 14
+                memory: 30Gi
+        storageSpec:
+            name: be
+            storageSize: 50Gi
+            logStorageSize: 4Gi
+
+    starrocksFeProxySpec:
+        enabled: true
+        service:
+            type: LoadBalancer

@@ -12,9 +12,7 @@ provider "aws" {
   region = var.region
 }
 
-# ------------------------------------------------------------------------------
-# Networking: dùng Default VPC/Subnets cho nhanh (có thể tách ra VPC riêng sau)
-# ------------------------------------------------------------------------------
+
 data "aws_vpc" "default" {
   default = true
 }
@@ -26,7 +24,6 @@ data "aws_subnets" "default" {
   }
 }
 
-# Ubuntu 22.04 LTS (Jammy) AMI mới nhất qua SSM Parameter Store
 data "aws_ami" "ubuntu_2204_gp2" {
   most_recent = true
   owners      = ["099720109477"]
@@ -47,15 +44,12 @@ locals {
   subnet_id = element(data.aws_subnets.default.ids, 0)
 }
 
-# ------------------------------------------------------------------------------
-# Security Group: SSH, K8s control-plane, NodePort, MinIO
-# ------------------------------------------------------------------------------
-resource "aws_security_group" "mbs-poc-sg" {
-  name        = "mbs-poc-sg"
+
+resource "aws_security_group" "mbs-poc-sg-2" {
+  name        = "mbs-poc-sg-2"
   description = "Kubernetes + SSH + MinIO"
   vpc_id      = data.aws_vpc.default.id
 
-  # SSH
   ingress {
     from_port   = 22
     to_port     = 22
@@ -63,7 +57,13 @@ resource "aws_security_group" "mbs-poc-sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # Kubernetes control-plane
+  ingress {
+    from_port   = 79
+    to_port     = 79
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   ingress {
     from_port   = 6443
     to_port     = 6443
@@ -95,7 +95,6 @@ resource "aws_security_group" "mbs-poc-sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # NodePort
   ingress {
     from_port   = 30000
     to_port     = 32767
@@ -103,7 +102,6 @@ resource "aws_security_group" "mbs-poc-sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # MinIO API & Console
   ingress {
     from_port   = 9000
     to_port     = 9001
@@ -111,7 +109,15 @@ resource "aws_security_group" "mbs-poc-sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # Egress all
+  ingress {
+    description = "Allow all inbound traffic"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"     
+    cidr_blocks = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
@@ -120,9 +126,6 @@ resource "aws_security_group" "mbs-poc-sg" {
   }
 }
 
-# ------------------------------------------------------------------------------
-# IAM: SSM (bắt buộc), EC2 ReadOnly (nếu muốn scripts tự discover peer MinIO)
-# ------------------------------------------------------------------------------
 data "aws_iam_policy_document" "ssm_assume" {
   statement {
     actions = ["sts:AssumeRole"]
@@ -133,38 +136,30 @@ data "aws_iam_policy_document" "ssm_assume" {
   }
 }
 
-resource "aws_iam_role" "ssm_role" {
-  name               = "ec2-ssm-role"
+resource "aws_iam_role" "ssm_role-2" {
+  name               = "ec2-ssm-role-2"
   assume_role_policy = data.aws_iam_policy_document.ssm_assume.json
 }
 
-resource "aws_iam_instance_profile" "ssm_profile" {
-  name = "ec2-ssm-instance-profile"
-  role = aws_iam_role.ssm_role.name
+resource "aws_iam_instance_profile" "ssm_profile-2" {
+  name = "ec2-ssm-instance-profile-2"
+  role = aws_iam_role.ssm_role-2.name
 }
 
-# Gắn SSM để đăng nhập/quan sát; và EC2 ReadOnly nếu script MinIO cần tự tìm peer
-resource "aws_iam_role_policy_attachment" "ssm_core" {
-  role       = aws_iam_role.ssm_role.name
+resource "aws_iam_role_policy_attachment" "ssm_core-2" {
+  role       = aws_iam_role.ssm_role-2.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }
 
 resource "aws_iam_role_policy_attachment" "ec2_readonly" {
-  role       = aws_iam_role.ssm_role.name
+  role       = aws_iam_role.ssm_role-2.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess"
 }
 
-# ------------------------------------------------------------------------------
-# Cloud-init user_data: nhúng nội dung scripts vào YAML templates
-# ------------------------------------------------------------------------------
-# Đọc nội dung file .sh rồi indent để nhúng vào YAML | blocks
 locals {
   common_sh = replace(file("${path.module}/scripts/common.sh"), "\n", "\n        ")
   master_sh = replace(file("${path.module}/scripts/master.sh"), "\n", "\n        ")
-  worker_sh = replace(file("${path.module}/scripts/worker.sh"), "\n", "\n        ")
-  minio_sh  = replace(file("${path.module}/scripts/minio.sh"),  "\n", "\n        ")
 
-  # Render cloud-init từ template *.tmpl
   master_user_data = templatefile("${path.module}/cloudinit/master-cloudinit.yaml.tmpl", {
     COMMON_SH = local.common_sh
     MASTER_SH = local.master_sh
@@ -172,113 +167,22 @@ locals {
 
   worker_user_data = templatefile("${path.module}/cloudinit/worker-cloudinit.yaml.tmpl", {
     COMMON_SH = local.common_sh
-    WORKER_SH = local.worker_sh
-  })
-
-  # Lưu ý: template MinIO chỉ cần MINIO_USER/MINIO_PASS (script minio.sh có thể tự discover peers theo tag Role=minio,
-  # hoặc bạn có thể mở rộng template để truyền peer IP nếu muốn).
-  minio_user_data = templatefile("${path.module}/cloudinit/minio-cloudinit.yaml.tmpl", {
-    MINIO_SH   = local.minio_sh
-    MINIO_USER = var.minio_root_user
-    MINIO_PASS = var.minio_root_password
-    # Nếu template của bạn có thêm placeholders cho peer, thêm tại đây.
   })
 }
 
-# ------------------------------------------------------------------------------
-# EC2 Instances
-#   - 2 x MinIO nodes (distributed)
-#   - 1 x svc-master (control-plane)
-#   - 2 x svc-workers
-# ------------------------------------------------------------------------------
-
-# MinIO node A
-# resource "aws_instance" "mbs-poc-minio_a" {
-#   ami                    = local.ami_id
-#   instance_type          = var.minio_instance_type
-#   subnet_id              = local.subnet_id
-#   key_name               = var.key_name
-#   iam_instance_profile   = aws_iam_instance_profile.ssm_profile.name
-#   vpc_security_group_ids = [aws_security_group.mbs-poc-sg.id]
-#
-#   user_data = local.minio_user_data
-#
-#   root_block_device {
-#     volume_type = "gp3"
-#     volume_size = 50
-#   }
-#
-#   ebs_block_device {
-#     device_name           = "/dev/sdf"
-#     volume_type           = "gp3"
-#     volume_size           = var.minio_data_size_gb
-#     iops                  = var.minio_gp3_iops
-#     throughput            = var.minio_gp3_throughput
-#     delete_on_termination = true
-#   }
-#
-#   tags = {
-#     Name = "minio-1"
-#     Role = "minio"
-#     OS   = "ubuntu-22.04"
-#   }
-# }
-
-# MinIO node B
-# resource "aws_instance" "mbs-poc-minio_b" {
-#   ami                    = local.ami_id
-#   instance_type          = var.minio_instance_type
-#   subnet_id              = local.subnet_id
-#   key_name               = var.key_name
-#   iam_instance_profile   = aws_iam_instance_profile.ssm_profile.name
-#   vpc_security_group_ids = [aws_security_group.mbs-poc-sg.id]
-#
-#   user_data = local.minio_user_data
-#
-#   root_block_device {
-#     volume_type = "gp3"
-#     volume_size = 50
-#   }
-#
-#   ebs_block_device {
-#     device_name           = "/dev/sdf"
-#     volume_type           = "gp3"
-#     volume_size           = var.minio_data_size_gb
-#     iops                  = var.minio_gp3_iops
-#     throughput            = var.minio_gp3_throughput
-#     delete_on_termination = true
-#   }
-#
-#   tags = {
-#     Name = "minio-2"
-#     Role = "minio"
-#     OS   = "ubuntu-22.04"
-#   }
-# }
-
-# Service MASTER (control-plane)
 resource "aws_instance" "mbs-poc-svc_master" {
   ami                    = local.ami_id
   instance_type          = var.svc_instance_type
   subnet_id              = local.subnet_id
   key_name               = var.key_name
-  iam_instance_profile   = aws_iam_instance_profile.ssm_profile.name
-  vpc_security_group_ids = [aws_security_group.mbs-poc-sg.id]
+  iam_instance_profile   = aws_iam_instance_profile.ssm_profile-2.name
+  vpc_security_group_ids = [aws_security_group.mbs-poc-sg-2.id]
 
   user_data = local.master_user_data
 
   root_block_device {
     volume_type = "gp3"
     volume_size = 50
-  }
-
-  ebs_block_device {
-    device_name           = "/dev/sdg"
-    volume_type           = "gp3"
-    volume_size           = var.svc_data_size_gb
-    iops                  = var.svc_gp3_iops
-    throughput            = var.svc_gp3_throughput
-    delete_on_termination = true
   }
 
   tags = {
@@ -288,30 +192,20 @@ resource "aws_instance" "mbs-poc-svc_master" {
   }
 }
 
-# Service WORKERs (2 nodes)
 resource "aws_instance" "mbs-poc-svc_workers" {
   count                  = 2
   ami                    = local.ami_id
   instance_type          = var.svc_instance_type
   subnet_id              = local.subnet_id
   key_name               = var.key_name
-  iam_instance_profile   = aws_iam_instance_profile.ssm_profile.name
-  vpc_security_group_ids = [aws_security_group.mbs-poc-sg.id]
+  iam_instance_profile   = aws_iam_instance_profile.ssm_profile-2.name
+  vpc_security_group_ids = [aws_security_group.mbs-poc-sg-2.id]
 
   user_data = local.worker_user_data
 
   root_block_device {
     volume_type = "gp3"
     volume_size = 50
-  }
-
-  ebs_block_device {
-    device_name           = "/dev/sdg"
-    volume_type           = "gp3"
-    volume_size           = var.svc_data_size_gb
-    iops                  = var.svc_gp3_iops
-    throughput            = var.svc_gp3_throughput
-    delete_on_termination = true
   }
 
   tags = {
@@ -321,25 +215,17 @@ resource "aws_instance" "mbs-poc-svc_workers" {
   }
 }
 
-# ------------------------------------------------------------------------------
-# Hints sau khi apply (in IP để bạn sửa join-all-workers.sh nếu muốn)
-# ------------------------------------------------------------------------------
 resource "null_resource" "hint_join_script" {
   triggers = {
     master_ip  = aws_instance.mbs-poc-svc_master.private_ip
     worker1_ip = aws_instance.mbs-poc-svc_workers[0].private_ip
     worker2_ip = aws_instance.mbs-poc-svc_workers[1].private_ip
-    # minio_a_ip = aws_instance.mbs-poc-minio_a.private_ip
-    # minio_b_ip = aws_instance.mbs-poc-minio_b.private_ip
   }
 
   provisioner "local-exec" {
     command = <<-CMD
       echo "==> Master private IP:  ${aws_instance.mbs-poc-svc_master.private_ip}"
       echo "==> Workers private IP: ${aws_instance.mbs-poc-svc_workers[0].private_ip}, ${aws_instance.mbs-poc-svc_workers[1].private_ip}"
-
-      echo "Gợi ý: SSH vào master -> xem ~/join-command.txt hoặc dùng ~/join-all-workers.sh (điền IP nếu cần)."
     CMD
   }
 }
-#echo "==> MinIO private IPs:  ${aws_instance.mbs-poc-minio_a.private_ip}, ${aws_instance.mbs-poc-minio_b.private_ip}"

@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: trino-delta-catalog
+  namespace: query
+  labels:
+    app: trino
+data:
+  delta.properties: 'connector.name=delta-lake
+
+    hive.metastore.uri=thrift://hive-metastore.metastore.svc.cluster.local:9083
+
+    '

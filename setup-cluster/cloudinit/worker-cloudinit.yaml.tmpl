@@ -1,4 +1,3 @@
-#cloud-config
 package_update: true
 
 write_files:
@@ -7,12 +6,5 @@ write_files:
     owner: root:root
     content: |
         ${COMMON_SH}
-  - path: /opt/setup/worker.sh
-    permissions: '0755'
-    owner: root:root
-    content: |
-        ${WORKER_SH}
-
 runcmd:
   - [ bash, -c, "/opt/setup/common.sh" ]
-  - [ bash, -c, "/opt/setup/worker.sh" ]

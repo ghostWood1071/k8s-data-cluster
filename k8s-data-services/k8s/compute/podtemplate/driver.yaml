@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    role: spark-driver
+spec:
+  hostAliases:
+    - ip: "10.8.19.55"
+      hostnames:
+        - "lga-ext-kafka55"
+    - ip: "10.8.19.56"
+      hostnames:
+        - "lga-ext-kafka56"
+    - ip: "10.8.19.57"
+      hostnames:
+        - "lga-ext-kafka57"
+  containers:
+    - name: spark-container
+      image: ghostwood/mbs-spark:1.0.7-protobuf 

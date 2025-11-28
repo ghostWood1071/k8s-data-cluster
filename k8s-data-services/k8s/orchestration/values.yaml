@@ -1,0 +1,110 @@
+ingress:
+  enabled: false
+
+executor: "KubernetesExecutor"
+
+cleanup:
+  enabled: true
+
+data:
+  metadataConnection:
+    user: postgres
+    pass: postgres
+    protocol: postgresql
+    host: airflow-postgresql.orchestration.svc.cluster.local
+    port: 5432
+    db: airflow
+    sslmode: disable
+
+
+postgresql:
+  enabled: true
+  image:
+    registry: docker.io
+    repository: bitnami/postgresql
+    tag: "latest"
+    pullPolicy: IfNotPresent
+  auth:
+    username: postgres
+    password: postgres
+    enablePostgresUser: true
+
+defaultAirflowRepository: ghostwood/airflow
+defaultAirflowTag: "2.0.3"
+defaultAirflowDigest: ~
+airflowVersion: "2.10.3"
+
+dagProcessor:
+  enabled: ~
+
+config:
+  logging:
+    remoteLogging: true
+    remoteLogConnId: minio_conn
+    remoteBaseLogFolder: s3a://airflow-logs
+    encryptS3Logs: false
+  core:
+    dags_folder: '{{ include "airflow_dags" . }}'
+    # This is ignored when used with the official Docker image
+    load_examples: 'True'
+    executor: '{{ .Values.executor }}'
+    # For Airflow 1.10, backward compatibility; moved to [logging] in 2.0
+    colored_console_log: 'False'
+    remote_logging: '{{- ternary "True" "False" (or .Values.elasticsearch.enabled .Values.opensearch.enabled) }}'
+  kubernetes:
+    namespace: '{{ .Release.Namespace }}'
+    # The following `airflow_` entries are for Airflow 1, and can be removed when it is no longer supported.
+    airflow_configmap: '{{ include "airflow_config" . }}'
+    airflow_local_settings_configmap: '{{ include "airflow_config" . }}'
+    pod_template_file: '{{ include "airflow_pod_template_file" . }}/pod_template_file.yaml'
+    worker_container_repository: '{{ .Values.images.airflow.repository | default .Values.defaultAirflowRepository }}'
+    worker_container_tag: '{{ .Values.images.airflow.tag | default .Values.defaultAirflowTag }}'
+    multi_namespace_mode: '{{ ternary "True" "False" .Values.multiNamespaceMode }}'
+  # The `kubernetes_executor` section duplicates the `kubernetes` section in Airflow >= 2.5.0 due to an airflow.cfg schema change.
+  kubernetes_executor:
+    namespace: '{{ .Release.Namespace }}'
+    pod_template_file: '{{ include "airflow_pod_template_file" . }}/pod_template_file.yaml'
+    worker_container_repository: '{{ .Values.images.airflow.repository | default .Values.defaultAirflowRepository }}'
+    worker_container_tag: '{{ .Values.images.airflow.tag | default .Values.defaultAirflowTag }}'
+    multi_namespace_mode: '{{ ternary "True" "False" .Values.multiNamespaceMode }}'
+  dag_processor:
+    refresh_interval: 30
+worker:
+  persistence:
+    enabled: true
+    size: 1Gi
+triggerer:
+  enabled: true
+  persistence:
+    enabled: false
+    size: 1Gi
+dags:
+  persistence:
+    annotations: {}
+    enabled: true
+    size: 1Gi
+    accessMode: ReadWriteMany
+    existingClaim:
+    subPath: ~
+  gitSync:
+    enabled: false
+    repo: https://github.com/apache/airflow.git
+    branch: v2-11-stable
+    rev: HEAD
+    ref: v2-11-stable
+    depth: 1
+    maxFailures: 0
+    subPath: "tests/dags"
+redis:
+  enabled: true
+logs:
+  persistence:
+    enabled: true
+    size: 1Gi
+
+createUserJob:
+  useHelmHooks: false
+  applyCustomEnv: false
+migrateDatabaseJob:
+  useHelmHooks: false
+  applyCustomEnv: false

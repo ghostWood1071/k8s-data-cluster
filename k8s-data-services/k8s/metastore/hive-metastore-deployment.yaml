@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hive-metastore
+  namespace: metastore
+spec:
+  selector:
+    matchLabels: &id001
+      app: hive-metastore
+      role: hive-metastore
+  template:
+    metadata:
+      labels: *id001
+    spec:
+      containers:
+      - name: hive-metastore
+        image: ghostwood/hive:4.0.0
+        ports:
+        - containerPort: 9083
+        volumeMounts:
+        - name: hive-site
+          mountPath: /opt/hive/conf
+        args:
+        - --service
+        - metastore
+        env:
+          - name: SERVICE_NAME
+            value: metastore
+          - name: HIVE_METASTORE_DB_TYPE
+            value: postgres
+          - name: HIVE_METASTORE_USER
+            value: hive
+          - name: HIVE_METASTORE_PASSWORD
+            value: hive
+          - name: HIVE_METASTORE_DB_HOST
+            value: postgres-metastore
+          - name: HIVE_METASTORE_DB_NAME
+            value: metastore
+          - name: DB_DRIVER
+            value: postgres
+      volumes:
+      - name: hive-site
+        configMap:
+          name: hive-site
+  replicas: 1
