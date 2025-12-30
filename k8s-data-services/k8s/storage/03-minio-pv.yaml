@@ -4,7 +4,7 @@ metadata:
   name: pv-minio-0
 spec:
   capacity:
-    storage: 140Gi
+    storage: 20Gi
   accessModes:
     - ReadWriteOnce
   storageClassName: hostpath
@@ -18,7 +18,7 @@ metadata:
   name: pv-minio-1
 spec:
   capacity:
-    storage: 140Gi
+    storage: 20Gi
   accessModes:
     - ReadWriteOnce
   storageClassName: hostpath
