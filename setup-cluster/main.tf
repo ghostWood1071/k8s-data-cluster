@@ -45,8 +45,8 @@ locals {
 }
 
 
-resource "aws_security_group" "mbs-poc-sg-2" {
-  name        = "mbs-poc-sg-2"
+resource "aws_security_group" "data-platform-sg" {
+  name        = "data-platform-sg"
   description = "Kubernetes + SSH + MinIO"
   vpc_id      = data.aws_vpc.default.id
 
@@ -136,23 +136,23 @@ data "aws_iam_policy_document" "ssm_assume" {
   }
 }
 
-resource "aws_iam_role" "ssm_role-2" {
-  name               = "ec2-ssm-role-2"
+resource "aws_iam_role" "ssm_role" {
+  name               = "ec2-ssm-role"
   assume_role_policy = data.aws_iam_policy_document.ssm_assume.json
 }
 
-resource "aws_iam_instance_profile" "ssm_profile-2" {
-  name = "ec2-ssm-instance-profile-2"
-  role = aws_iam_role.ssm_role-2.name
+resource "aws_iam_instance_profile" "ssm_profile" {
+  name = "ec2-ssm-instance-profile"
+  role = aws_iam_role.ssm_role.name
 }
 
-resource "aws_iam_role_policy_attachment" "ssm_core-2" {
-  role       = aws_iam_role.ssm_role-2.name
+resource "aws_iam_role_policy_attachment" "ssm_core" {
+  role       = aws_iam_role.ssm_role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }
 
 resource "aws_iam_role_policy_attachment" "ec2_readonly" {
-  role       = aws_iam_role.ssm_role-2.name
+  role       = aws_iam_role.ssm_role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess"
 }
 
@@ -170,19 +170,23 @@ locals {
   })
 }
 
-resource "aws_instance" "mbs-poc-svc_master" {
+resource "aws_instance" "poc-svc_master" {
   ami                    = local.ami_id
-  instance_type          = var.svc_instance_type
+  instance_type          = var.svc_master_instance_type
   subnet_id              = local.subnet_id
   key_name               = var.key_name
-  iam_instance_profile   = aws_iam_instance_profile.ssm_profile-2.name
-  vpc_security_group_ids = [aws_security_group.mbs-poc-sg-2.id]
+  iam_instance_profile   = aws_iam_instance_profile.ssm_profile.name
+  vpc_security_group_ids = [aws_security_group.data-platform-sg.id]
 
   user_data = local.master_user_data
 
   root_block_device {
-    volume_type = "gp3"
-    volume_size = 50
+    volume_type = var.svc_storage_type
+    volume_size = var.svc_master_storage_size_gb
+    iops = var.svc_gp3_iops
+    throughput = var.svc_gp3_throughput
+    encrypted             = true
+    delete_on_termination = true
   }
 
   tags = {
@@ -192,20 +196,24 @@ resource "aws_instance" "mbs-poc-svc_master" {
   }
 }
 
-resource "aws_instance" "mbs-poc-svc_workers" {
-  count                  = 2
+resource "aws_instance" "poc-svc_workers" {
+  count                  = var.svc_num_worker
   ami                    = local.ami_id
   instance_type          = var.svc_instance_type
   subnet_id              = local.subnet_id
   key_name               = var.key_name
-  iam_instance_profile   = aws_iam_instance_profile.ssm_profile-2.name
-  vpc_security_group_ids = [aws_security_group.mbs-poc-sg-2.id]
+  iam_instance_profile   = aws_iam_instance_profile.ssm_profile.name
+  vpc_security_group_ids = [aws_security_group.data-platform-sg.id]
 
   user_data = local.worker_user_data
 
   root_block_device {
-    volume_type = "gp3"
-    volume_size = 50
+    volume_type = var.svc_storage_type
+    volume_size = var.svc_data_size_gb
+    iops = var.svc_gp3_iops
+    throughput = var.svc_gp3_throughput
+    encrypted             = true
+    delete_on_termination = true
   }
 
   tags = {
@@ -217,15 +225,15 @@ resource "aws_instance" "mbs-poc-svc_workers" {
 
 resource "null_resource" "hint_join_script" {
   triggers = {
-    master_ip  = aws_instance.mbs-poc-svc_master.private_ip
-    worker1_ip = aws_instance.mbs-poc-svc_workers[0].private_ip
-    worker2_ip = aws_instance.mbs-poc-svc_workers[1].private_ip
+    master_ip  = aws_instance.poc-svc_master.private_ip
+    worker1_ip = aws_instance.poc-svc_workers[0].private_ip
+    worker2_ip = aws_instance.poc-svc_workers[1].private_ip
   }
 
   provisioner "local-exec" {
     command = <<-CMD
-      echo "==> Master private IP:  ${aws_instance.mbs-poc-svc_master.private_ip}"
-      echo "==> Workers private IP: ${aws_instance.mbs-poc-svc_workers[0].private_ip}, ${aws_instance.mbs-poc-svc_workers[1].private_ip}"
+      echo "==> Master private IP:  ${aws_instance.poc-svc_master.private_ip}"
+      echo "==> Workers private IP: ${aws_instance.poc-svc_workers[0].private_ip}, ${aws_instance.poc-svc_workers[1].private_ip}"
     CMD
   }
 }

@@ -8,52 +8,22 @@ variable "key_name" {
   type        = string
 }
 
-variable "minio_instance_type" {
-  description = "Loại instance cho MinIO"
-  type        = string
-  default     = "m7i.2xlarge"
-}
-
 variable "svc_instance_type" {
   description = "Loại instance cho service nodes"
   type        = string
   default     = "m7i.3xlarge"
 }
 
-variable "starrock_instance_type" {
-  description = "Loại instance cho starrock nodes"
+variable "svc_master_instance_type" {
+  description = "Loại instance cho service nodes"
   type        = string
   default     = "m7i.3xlarge"
-}
-
-variable "minio_data_size_gb" {
-  description = "Kích thước EBS gp3 cho MinIO (GiB)"
-  type        = number
-  default     = 2048
-}
-
-variable "starrock_size_gb" {
-  description = "Kích thước EBS gp3 cho MinIO (GiB)"
-  type        = number
-  default     = 1000
 }
 
 variable "svc_data_size_gb" {
   description = "Kích thước EBS gp3 cho service nodes (GiB)"
   type        = number
   default     = 1024
-}
-
-variable "minio_gp3_iops" {
-  description = "IOPS cho volume gp3 MinIO"
-  type        = number
-  default     = 6000
-}
-
-variable "minio_gp3_throughput" {
-  description = "Throughput (MiB/s) cho volume gp3 MinIO"
-  type        = number
-  default     = 500
 }
 
 variable "svc_gp3_iops" {
@@ -68,13 +38,21 @@ variable "svc_gp3_throughput" {
   default     = 250
 }
 
-variable "minio_root_user" {
-  description = "MINIO_ROOT_USER"
-  type        = string
+variable "svc_num_worker" {
+  description = "number of worker"
+  type        = number
+  default     = 2
 }
 
-variable "minio_root_password" {
-  description = "MINIO_ROOT_PASSWORD (>=8 ký tự)"
-  type        = string
-  sensitive   = true
+variable "svc_master_storage_size_gb" {
+  description = "master storage size"
+  type        = number
+  default     = 2
 }
+
+variable "svc_storage_type" {
+  description = "storage type gp3/gp2"
+  type        = string
+  default     = "gp3"
+}
+
