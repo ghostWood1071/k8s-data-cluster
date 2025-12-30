@@ -32,3 +32,9 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: cdc
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: warehouse
