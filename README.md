@@ -131,6 +131,10 @@ Change to Minio cluster
 	kubectl patch pvc be-log-kube-starrocks-be-1 -n warehouse --type=merge -p '{"spec":{"volumeName":"pv-starrocks-be-logs-1", "storageClassName":"hostpath"}}'
 	kubectl patch svc kube-starrocks-fe-service  -n warehouse -p '{"spec": {"type": "NodePort", "ports": [{"port": 9030, "nodePort": 30030, "protocol": "TCP", "targetPort": 9030}]}}'
 
+📌Configure a materialized view in StarRocks to refresh in under 60 seconds:
+
+    ADMIN SET FRONTEND CONFIG ("materialized_view_min_refresh_interval" = "...") --replace ... by value
+
 ## Create Service Account for Spark
 
     kubectl apply -f compute
@@ -148,3 +152,7 @@ Change to Minio cluster
     cd ./streaming
     kubectl apply -f pv.yaml
     kubectl apply -f kafka-broker.yaml -f kafka-controller.yaml -f postgres-db.yaml -f kafka-connector.yaml
+
+📌After starting kafka connector
+    kubectl exec -it 
+
