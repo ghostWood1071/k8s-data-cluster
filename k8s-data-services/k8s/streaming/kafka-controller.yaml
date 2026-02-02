@@ -1,0 +1,49 @@
+# =========================
+# Headless Service - Controller
+# =========================
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka-controller
+  namespace: streaming
+spec:
+  clusterIP: None
+  selector:
+    app: kafka-controller
+  ports:
+    - name: controller
+      port: 29093
+
+---
+# =========================
+# StatefulSet - Controller
+# =========================
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: kafka-controller
+  namespace: streaming
+spec:
+  serviceName: kafka-controller
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kafka-controller
+  template:
+    metadata:
+      labels:
+        app: kafka-controller
+    spec:
+      containers:
+        - name: kafka
+          image: chiennc4805/kafka-controller:1.0.0
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: kafka-controller-storage
+        resources:
+          requests:
+            storage: 2Gi

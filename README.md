@@ -142,3 +142,9 @@ Change to Minio cluster
     helm repo add flink-operator-repo https://downloads.apache.org/flink/flink-kubernetes-operator-1.13.0
 	helm repo update
 	helm install flink-kubernetes-operator flink-operator-repo/flink-kubernetes-operator --namespace cdc --create-namespace --set watchNamespaces="{cdc}"
+
+## Deploy streaming services (kafka broker, controller, connector + postgres)
+
+    cd ./streaming
+    kubectl apply -f pv.yaml
+    kubectl apply -f kafka-broker.yaml -f kafka-controller.yaml -f postgres-db.yaml -f kafka-connector.yaml

@@ -1,0 +1,51 @@
+# =========================
+# Cluster Service - Connector
+# =========================
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka-connect
+  namespace: streaming
+spec:
+  selector:
+    app: kafka-connect
+  ports:
+    - name: connector
+      port: 8083
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka-connect
+  namespace: streaming
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kafka-connect
+  template:
+    metadata:
+      labels:
+        app: kafka-connect
+    spec:
+      containers:
+        - name: kafka-connect
+          image: debezium/connect:2.6
+          env:
+            - name: BOOTSTRAP_SERVERS
+              value: "kafka-broker:9092"
+            - name: GROUP_ID
+              value: "1"
+            - name: CONFIG_STORAGE_TOPIC
+              value: "connect_configs"
+            - name: OFFSET_STORAGE_TOPIC
+              value: "connect_offsets"
+            - name: STATUS_STORAGE_TOPIC
+              value: "connect_statuses"
+            - name: CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR
+              value: "1"
+            - name: CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR
+              value: "1"
+            - name: CONNECT_STATUS_STORAGE_REPLICATION_FACTOR
+              value: "1"
