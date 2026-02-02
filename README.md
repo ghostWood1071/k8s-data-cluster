@@ -153,6 +153,7 @@ Change to Minio cluster
     kubectl apply -f pv.yaml
     kubectl apply -f kafka-broker.yaml -f kafka-controller.yaml -f postgres-db.yaml -f kafka-connector.yaml
 
-📌After starting kafka connector
-    kubectl exec -it 
+📌After the Kafka Connector starts, run the following command to initialize the connector between PostgreSQL and Kafka.
 
+    kubectl exec -it <kafka-connector-pod> -n streaming -- bash
+    curl -X POST http://localhost:8083/connectors -H "Content-type: Application/json" -d @/kafka/connectors/postgres-dbz-connector.json
