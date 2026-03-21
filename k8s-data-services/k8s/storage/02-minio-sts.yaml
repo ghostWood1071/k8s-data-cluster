@@ -46,7 +46,7 @@ spec:
     spec:
       accessModes:
         - ReadWriteOnce
-      storageClassName: hostpath
+      storageClassName: standard-rwx
       resources:
         requests:
           storage: 2Gi
