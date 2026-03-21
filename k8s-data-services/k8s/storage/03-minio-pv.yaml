@@ -7,7 +7,7 @@ spec:
     storage: 20Gi
   accessModes:
     - ReadWriteOnce
-  storageClassName: standard-rwx
+  storageClassName: standard
   persistentVolumeReclaimPolicy: Retain
   csi:
     driver: pd.csi.storage.gke.io
@@ -23,7 +23,7 @@ spec:
     storage: 20Gi
   accessModes:
     - ReadWriteOnce
-  storageClassName: standard-rwx
+  storageClassName: standard
   persistentVolumeReclaimPolicy: Retain
   csi:
     driver: pd.csi.storage.gke.io
