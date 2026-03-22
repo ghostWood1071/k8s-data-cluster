@@ -7,10 +7,11 @@ spec:
     storage: 8Gi
   accessModes:
     - ReadWriteOnce
-  storageClassName: hostpath
-  persistentVolumeReclaimPolicy: Retain
-  hostPath:
-    path: /data/airflow/postgres
+  storageClassName: standard
+  csi:
+    driver: pd.csi.storage.gke.io
+    volumeHandle: projects/your-project/zones/your-zone/disks/airflow-postgres
+    fsType: ext4
 
 ---
 apiVersion: v1
@@ -22,10 +23,11 @@ spec:
     storage: 2Gi
   accessModes:
     - ReadWriteMany
-  storageClassName: hostpath
-  persistentVolumeReclaimPolicy: Retain
-  hostPath:
-    path: /data/airflow/logs
+  storageClassName: standard-rwx
+  csi:
+    driver: pd.csi.storage.gke.io
+    volumeHandle: projects/your-project/zones/your-zone/disks/airflow-logs
+    fsType: ext4
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -36,7 +38,8 @@ spec:
     storage: 2Gi
   accessModes:
     - ReadWriteMany
-  storageClassName: hostpath
-  persistentVolumeReclaimPolicy: Retain
-  hostPath:
-    path: /data/airflow/dags
+  storageClassName: standard-rwx
+  csi:
+    driver: pd.csi.storage.gke.io
+    volumeHandle: projects/your-project/zones/your-zone/disks/airflow-dags
+    fsType: ext4
