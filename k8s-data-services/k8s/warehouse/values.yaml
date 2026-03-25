@@ -5,34 +5,34 @@ starrocks:
         passwordSecret: starrocks-root-pass
 
     starrocksFESpec:
-        replicas: 2
+        replicas: 1
         service:
             type: LoadBalancer
         resources:
             requests:
-                cpu: 2
-                memory: 2Gi
+                cpu: 0.5
+                memory: 512Mi
         storageSpec:
             name: fe
-            storageClassName: ""
+            storageClassName: standard-rwo
             storageSize: 2Gi
-            logStorageClassName: ""
-            logStorageSize: 2Gi
+            logStorageClassName: standard-rwo
+            logStorageSize: 1Gi
 
     starrocksBeSpec:
-        replicas: 2
+        replicas: 1
         resources:
             requests:
-                cpu: 8
-                memory: 16Gi
+                cpu: 1
+                memory: 2Gi
             limits:
-                cpu: 8
-                memory: 16Gi
+                cpu: 1
+                memory: 2Gi
         storageSpec:
             name: be
-            storageClassName: ""
+            storageClassName: standard-rwo
             storageSize: 30Gi
-            logStorageClassName: ""
+            logStorageClassName: standard-rwo
             logStorageSize: 4Gi
 
     starrocksFeProxySpec:
