@@ -14,7 +14,9 @@ starrocks:
                 memory: 2Gi
         storageSpec:
             name: fe
+            storageClassName: ""
             storageSize: 2Gi
+            logStorageClassName: ""
             logStorageSize: 2Gi
 
     starrocksBeSpec:
@@ -28,7 +30,9 @@ starrocks:
                 memory: 16Gi
         storageSpec:
             name: be
+            storageClassName: ""
             storageSize: 30Gi
+            logStorageClassName: ""
             logStorageSize: 4Gi
 
     starrocksFeProxySpec:
