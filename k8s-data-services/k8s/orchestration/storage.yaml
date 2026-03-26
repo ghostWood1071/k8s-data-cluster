@@ -19,7 +19,7 @@ metadata:
 spec:
   accessModes:
     - ReadWriteMany
-  storageClassName: filestore-csi
+  storageClassName: enterprise-multishare-rwx
   resources:
     requests:
-      storage: 5Gi
+      storage: 2Gi

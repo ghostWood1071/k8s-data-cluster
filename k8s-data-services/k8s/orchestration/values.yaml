@@ -18,13 +18,17 @@ data:
     host: airflow-postgresql.orchestration.svc.cluster.local
     port: 5432
     db: airflow
-    sslmode: disable
 
 postgresql:
   enabled: true
   auth:
     username: postgres
     password: postgres
+  primary:
+    persistence:
+      enabled: true
+      existingClaim: pvc-airflow-postgres
+      size: 8Gi
 
 defaultAirflowRepository: apache/airflow
 defaultAirflowTag: "2.11.0"
@@ -37,28 +41,28 @@ config:
 
   kubernetes:
     namespace: orchestration
-    service_account_name: airflow-worker
-    delete_worker_pods: true
 
   kubernetes_executor:
     namespace: orchestration
-    service_account_name: airflow-worker
-
   logging:
     remoteLogging: true
     remoteLogConnId: minio_conn
     remoteBaseLogFolder: s3a://airflow-logs
+    encryptS3Logs: false
 
 dags:
   persistence:
     enabled: true
     existingClaim: pvc-airflow-shared
     accessMode: ReadWriteMany
+    size: 2Gi
 
 logs:
   persistence:
     enabled: true
     existingClaim: pvc-airflow-shared
+    accessMode: ReadWriteMany   
+    size: 2Gi
 
 worker:
   persistence:
