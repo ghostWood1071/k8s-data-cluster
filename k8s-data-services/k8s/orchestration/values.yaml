@@ -26,8 +26,8 @@ postgresql:
     username: postgres
     password: postgres
 
-defaultAirflowRepository: ghostwood/airflow
-defaultAirflowTag: "2.0.3"
+defaultAirflowRepository: apache/airflow
+defaultAirflowTag: "2.10.3"
 defaultAirflowDigest: ~
 airflowVersion: "2.10.3"
 
