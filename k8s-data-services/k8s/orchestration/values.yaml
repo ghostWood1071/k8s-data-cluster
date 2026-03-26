@@ -4,7 +4,7 @@ ingress:
 executor: "KubernetesExecutor"
 
 serviceAccount:
-  create: false
+  create: true
   name: airflow-worker
 
 cleanup:
@@ -27,9 +27,9 @@ postgresql:
     password: postgres
 
 defaultAirflowRepository: apache/airflow
-defaultAirflowTag: "2.10.3"
+defaultAirflowTag: "2.11.0"
 defaultAirflowDigest: ~
-airflowVersion: "2.10.3"
+airflowVersion: "2.11.0"
 
 config:
   core:
