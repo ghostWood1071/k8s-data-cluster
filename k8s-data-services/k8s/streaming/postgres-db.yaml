@@ -20,10 +20,10 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
+  storageClassName: standard-rwo
   resources:
     requests:
       storage: 1Gi
-  volumeName: postgres-streaming-pv
 
 ---
 apiVersion: apps/v1

@@ -37,13 +37,16 @@ spec:
       containers:
         - name: kafka
           image: chiennc4805/kafka-broker:1.0.1
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/kafka/data
   volumeClaimTemplates:
     - metadata:
         name: data
       spec:
         accessModes:
           - ReadWriteOnce
-        storageClassName: kafka-broker-storage
+        storageClassName: premium-rwo
         resources:
           requests:
             storage: 2Gi
