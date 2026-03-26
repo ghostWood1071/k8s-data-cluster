@@ -53,6 +53,8 @@ spec:
               value: "demo"
             - name: POSTGRES_INITDB_WAL_LEVEL
               value: "logical"
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
           ports:
             - containerPort: 5432
           volumeMounts:
