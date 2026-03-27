@@ -7,9 +7,6 @@ serviceAccount:
   create: true
   name: airflow-worker
 
-cleanup:
-  enabled: true
-
 data:
   metadataConnection:
     user: postgres
@@ -30,20 +27,23 @@ postgresql:
       existingClaim: pvc-airflow-postgres
       size: 8Gi
 
-defaultAirflowRepository: apache/airflow
-defaultAirflowTag: "2.11.0"
-defaultAirflowDigest: ~
+defaultAirflowRepository: ghostwood/airflow
+defaultAirflowTag: "2.0.3"
 airflowVersion: "2.11.0"
 
 config:
   core:
     executor: KubernetesExecutor
+    dags_are_paused_at_creation: "True"
+    load_examples: "False"
 
   kubernetes:
     namespace: orchestration
 
   kubernetes_executor:
     namespace: orchestration
+    deleteWorkerPods: "True"
+
   logging:
     remoteLogging: true
     remoteLogConnId: minio_conn
@@ -53,16 +53,35 @@ config:
 dags:
   persistence:
     enabled: true
-    existingClaim: pvc-airflow-shared
     accessMode: ReadWriteMany
-    size: 2Gi
+    storageClassName: "filestore-rwx"
+    size: 10Gi
 
 logs:
   persistence:
     enabled: true
-    existingClaim: pvc-airflow-shared
-    accessMode: ReadWriteMany   
-    size: 2Gi
+    existingClaim: ""
+
+extraVolumes:
+  - name: airflow-shared
+    persistentVolumeClaim:
+      claimName: ~
+
+extraVolumeMounts:
+  - name: airflow-shared
+    mountPath: /opt/airflow/dags
+    subPath: dags
+
+  - name: airflow-shared
+    mountPath: /opt/airflow/logs
+    subPath: logs
+
+scheduler:
+  replicas: 1
+  resources:
+    requests:
+      cpu: "300m"
+      memory: "1Gi"
 
 worker:
   persistence:
@@ -70,9 +89,11 @@ worker:
 
 triggerer:
   enabled: true
+  persistence:
+    enabled: false
 
 redis:
-  enabled: true
+  enabled: false
 
 createUserJob:
   useHelmHooks: false

@@ -4,7 +4,7 @@ metadata:
   name: pvc-airflow-postgres
   namespace: orchestration
 spec:
-  accessModes:
+  accessModes: 
     - ReadWriteOnce
   storageClassName: premium-rwo
   resources:
@@ -12,14 +12,13 @@ spec:
       storage: 8Gi
 ---
 apiVersion: v1
-kind: PersistentVolumeClaim
+kind: StorageClass
 metadata:
-  name: pvc-airflow-shared
-  namespace: orchestration
-spec:
-  accessModes:
-    - ReadWriteMany
-  storageClassName: enterprise-multishare-rwx
-  resources:
-    requests:
-      storage: 2Gi
+  name: filestore-rwx
+provisioner: filestore.csi.storage.gke.io
+parameters:
+  tier: standard
+  network: default
+reclaimPolicy: Retain
+volumeBindingMode: WaitForFirstConsumer
+allowVolumeExpansion: true
