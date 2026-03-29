@@ -45,36 +45,19 @@ config:
     deleteWorkerPods: "True"
 
   logging:
-    remoteLogging: true
-    remoteLogConnId: minio_conn
-    remoteBaseLogFolder: s3a://airflow-logs
-    encryptS3Logs: false
+    remoteLogging: false
 
 dags:
   persistence:
     enabled: true
-    accessMode: ReadWriteMany
     storageClassName: "filestore-rwx"
     size: 10Gi
 
 logs:
   persistence:
     enabled: true
-    existingClaim: ""
-
-extraVolumes:
-  - name: airflow-shared
-    persistentVolumeClaim:
-      claimName: ~
-
-extraVolumeMounts:
-  - name: airflow-shared
-    mountPath: /opt/airflow/dags
-    subPath: dags
-
-  - name: airflow-shared
-    mountPath: /opt/airflow/logs
-    subPath: logs
+    storageClassName: filestore-rwx
+    size: 10Gi
 
 scheduler:
   replicas: 1
