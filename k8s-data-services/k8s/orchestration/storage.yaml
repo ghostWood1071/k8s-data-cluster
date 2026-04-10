@@ -1,42 +1,24 @@
 apiVersion: v1
-kind: PersistentVolume
+kind: PersistentVolumeClaim
 metadata:
-  name: pv-airflow-postgres
+  name: pvc-airflow-postgres
+  namespace: orchestration
 spec:
-  capacity:
-    storage: 8Gi
-  accessModes:
+  accessModes: 
     - ReadWriteOnce
-  storageClassName: hostpath
-  persistentVolumeReclaimPolicy: Retain
-  hostPath:
-    path: /data/airflow/postgres
-
+  storageClassName: premium-rwo
+  resources:
+    requests:
+      storage: 8Gi
 ---
-apiVersion: v1
-kind: PersistentVolume
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
 metadata:
-  name: pv-airflow-logs
-spec:
-  capacity:
-    storage: 2Gi
-  accessModes:
-    - ReadWriteMany
-  storageClassName: hostpath
-  persistentVolumeReclaimPolicy: Retain
-  hostPath:
-    path: /data/airflow/logs
----
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: pv-airflow-dags
-spec:
-  capacity:
-    storage: 2Gi
-  accessModes:
-    - ReadWriteMany
-  storageClassName: hostpath
-  persistentVolumeReclaimPolicy: Retain
-  hostPath:
-    path: /data/airflow/dags
+  name: filestore-rwx
+provisioner: filestore.csi.storage.gke.io
+parameters:
+  tier: standard
+  network: default
+reclaimPolicy: Retain
+volumeBindingMode: WaitForFirstConsumer
+allowVolumeExpansion: true
