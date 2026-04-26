@@ -1,0 +1,49 @@
+# =========================
+# Headless Service - Broker
+# =========================
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka-broker
+  namespace: streaming
+spec:
+  clusterIP: None
+  selector:
+    app: kafka-broker
+  ports:
+    - name: broker
+      port: 9092
+
+---
+# =========================
+# StatefulSet - Broker
+# =========================
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: kafka-broker
+  namespace: streaming
+spec:
+  serviceName: kafka-broker
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kafka-broker
+  template:
+    metadata:
+      labels:
+        app: kafka-broker
+    spec:
+      containers:
+        - name: kafka
+          image: chiennc4805/kafka-broker:1.0.1
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: kafka-broker-storage
+        resources:
+          requests:
+            storage: 2Gi

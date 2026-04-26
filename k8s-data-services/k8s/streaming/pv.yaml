@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: kafka-controller-pv-0
+spec:
+  capacity:
+    storage: 2Gi
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: kafka-controller-storage
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: /demo-kafka/data/kafka/controller-0
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: kafka-broker-pv-0
+spec:
+  capacity:
+    storage: 2Gi
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: kafka-broker-storage
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: /demo-kafka/data/kafka/broker-0
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: postgres-streaming-pv
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:             
+    path: /demo-kafka/data/postgres-db
+  persistentVolumeReclaimPolicy: Retain

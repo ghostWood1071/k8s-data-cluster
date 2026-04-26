@@ -131,6 +131,10 @@ Change to Minio cluster
 	kubectl patch pvc be-log-kube-starrocks-be-1 -n warehouse --type=merge -p '{"spec":{"volumeName":"pv-starrocks-be-logs-1", "storageClassName":"hostpath"}}'
 	kubectl patch svc kube-starrocks-fe-service  -n warehouse -p '{"spec": {"type": "NodePort", "ports": [{"port": 9030, "nodePort": 30030, "protocol": "TCP", "targetPort": 9030}]}}'
 
+📌Configure a materialized view in StarRocks to refresh in under 60 seconds:
+
+    ADMIN SET FRONTEND CONFIG ("materialized_view_min_refresh_interval" = "...") --replace ... by value
+
 ## Create Service Account for Spark
 
     kubectl apply -f compute
@@ -142,3 +146,14 @@ Change to Minio cluster
     helm repo add flink-operator-repo https://downloads.apache.org/flink/flink-kubernetes-operator-1.13.0
 	helm repo update
 	helm install flink-kubernetes-operator flink-operator-repo/flink-kubernetes-operator --namespace cdc --create-namespace --set watchNamespaces="{cdc}"
+
+## Deploy streaming services (kafka broker, controller, connector + postgres)
+
+    cd ./streaming
+    kubectl apply -f pv.yaml
+    kubectl apply -f kafka-broker.yaml -f kafka-controller.yaml -f postgres-db.yaml -f kafka-connector.yaml
+
+📌After the Kafka Connector starts, run the following command to initialize the connector between PostgreSQL and Kafka.
+
+    kubectl exec -it <kafka-connector-pod> -n streaming -- bash
+    curl -X POST http://localhost:8083/connectors -H "Content-type: Application/json" -d @/kafka/connectors/postgres-dbz-connector.json
