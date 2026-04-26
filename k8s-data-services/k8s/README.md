@@ -78,6 +78,37 @@ Create namespaces
   
 
     kubectl apply -f 01-secrets-configs
+## Deploy volume manager (Longhorn)
+### Prerequisites (run on all nodes)
+
+Enable required services
+
+    sudo systemctl enable containerd kubelet iscsid multipathd
+
+Fix multipathd conflict with Longhorn iSCSI
+
+    sudo bash << 'EOF'
+    cat > /etc/multipath.conf << 'MEOF'
+    defaults {
+        user_friendly_names yes
+    }
+    blacklist {
+        devnode "^sd[a-z0-9]+"
+    }
+    MEOF
+    systemctl restart multipathd
+    EOF
+
+Install iSCSI and NFS client
+
+    sudo apt update && sudo apt install -y open-iscsi nfs-common
+    sudo systemctl enable --now iscsid
+
+### Install Longhorn
+
+    cd ./volume-manager
+    helm repo add longhorn https://charts.longhorn.io
+    helm install longhorn longhorn/longhorn -n volume-manager --version 1.11.1 -f values.yaml
 ## Deploy metastore services (hive + postgres)
 
     kubectl apply -f metastore
