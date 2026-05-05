@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Init') {
             steps {
-                echo 'Jenkins pipeline started'
+                echo 'test jenkins'
             }
         }
     }
