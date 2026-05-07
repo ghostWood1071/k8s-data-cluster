@@ -2,9 +2,15 @@ pipeline {
     agent any
 
     stages {
-        stage('Init') {
+        stage('Apply namespaces') {
+            when {
+                changeset "k8s-data-services/namespaces.yaml"
+            }
             steps {
-                echo 'test jenkins'
+                echo 'Start apply namespace changes'
+                script {
+                    sh 'kubectl apply -f k8s-data-services/namespaces.yaml'
+                }
             }
         }
     }
