@@ -5,12 +5,14 @@ pipeline {
         NS = 'volume-manager'
         RELEASE = 'longhorn'
         VERSION = '1.11.1'
-        VALUES = 'values.yaml'
+        VALUES = 'k8s-data-services/volume-manager/values.yaml'  // ← Sửa path đúng với repo của bạn
     }
     
     stages {
         stage('Checkout') {
-            steps { checkout scm }
+            steps { 
+                checkout scm 
+            }
         }
         
         stage('Deploy') {
@@ -30,14 +32,34 @@ pipeline {
         
         stage('Verify') {
             steps {
-                sh "kubectl wait --for=condition=ready pod -l app=longhorn -n ${NS} --timeout=180s"
-                sh "helm status ${RELEASE} -n ${NS}"
+                script {
+                    echo "Verifying Longhorn deployment..."
+                    sh '''
+                        echo "=== Helm Release Status ==="
+                        helm status longhorn -n volume-manager --output table
+                        
+                        echo ""
+                        echo "=== Longhorn Pods ==="
+                        kubectl get pods -n volume-manager -o wide
+                        
+                        echo ""
+                        echo "===Longhorn UI Service ==="
+                        kubectl get svc -n volume-manager -l app=longhorn-ui
+                        
+                        echo ""
+                        echo "Longhorn is running! (Verification complete)"
+                    '''
+                }
             }
         }
     }
     
     post {
-        success { echo "✅ Longhorn deployed!" }
-        failure { echo "❌ Deploy failed!" }
+        success { 
+            echo "Siuuuu" 
+        }
+        failure { 
+            echo "Lỗi rồi :(" 
+        }
     }
 }

@@ -20,9 +20,15 @@ spec:
       - name: minio
         env:
         - name: MINIO_ACCESS_KEY
-          value: "minioadmin"
+          valueFrom:
+            secretKeyRef:
+              name: minio-creds
+              key: MINIO_ACCESS_KEY
         - name: MINIO_SECRET_KEY
-          value: "minio@demo!"
+          valueFrom:
+            secretKeyRef:
+              name: minio-creds
+              key: MINIO_SECRET_KEY
         - name: MINIO_DOMAIN
           value: "minio.miniodemo.xyz"
         image: minio/minio:latest
