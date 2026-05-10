@@ -18,23 +18,31 @@ spec:
     spec:
       containers:
       - name: minio
+        image: minio/minio:latest
         env:
         - name: MINIO_ACCESS_KEY
-          value: "minioadmin"
+          valueFrom:
+            secretKeyRef:
+              name: minio-creds
+              key: MINIO_ACCESS_KEY
         - name: MINIO_SECRET_KEY
-          value: "minio@demo!"
+          valueFrom:
+            secretKeyRef:
+              name: minio-creds
+              key: MINIO_SECRET_KEY
         - name: MINIO_DOMAIN
           value: "minio.miniodemo.xyz"
-        image: minio/minio:latest
         args:
-        - server   
+        - server
         - http://minio-0.minio.storage.svc.cluster.local/data
         - http://minio-1.minio.storage.svc.cluster.local/data
-        - --console-address   
+        - --console-address
         - :9001
         ports:
         - containerPort: 9000
+          name: api
         - containerPort: 9001
+          name: console
         volumeMounts:
         - name: data
           mountPath: /data
@@ -43,7 +51,7 @@ spec:
       name: data
     spec:
       accessModes:
-        - ReadWriteOnce
+      - ReadWriteOnce
       storageClassName: longhorn
       resources:
         requests:

@@ -50,14 +50,21 @@ config:
 dags:
   persistence:
     enabled: true
-    storageClassName: "filestore-rwx"
+    storageClassName: longhorn
+    accessMode: ReadWriteMany
     size: 10Gi
 
 logs:
   persistence:
     enabled: true
-    storageClassName: filestore-rwx
+    storageClassName: longhorn
     size: 10Gi
+
+webserver:
+  defaultUser:
+    enabled: true
+    username: admin
+    password: datalab
 
 scheduler:
   replicas: 1

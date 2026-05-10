@@ -20,7 +20,7 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: standard-rwo
+  storageClassName: longhorn
   resources:
     requests:
       storage: 1Gi
