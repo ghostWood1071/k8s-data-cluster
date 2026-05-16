@@ -68,6 +68,14 @@ dags:
     accessMode: ReadWriteMany
     size: 10Gi
 
+  gitSync:
+    enabled: true
+    repo: "https://github.com/ghostWood1071/native-data-platform.git"
+    branch: "master"
+    rev: HEAD
+    subPath: "orchestration/dags"
+    period: 30s
+
 logs:
   persistence:
     enabled: true
