@@ -13,5 +13,17 @@ pipeline {
                 }
             }
         }
+
+        stage('Build Spark image') {
+            when {
+                changeset "k8s-data-services/compute/docker-build/Dockerfile"
+            }
+            steps {
+                echo 'Start build spark image'
+                script {
+                    sh 'kubectl apply -f k8s-data-services/namespaces.yaml'
+                }
+            }
+        }
     }
 }
