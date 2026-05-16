@@ -1,5 +1,15 @@
 ingress:
-  enabled: false
+  web:
+    enabled: true
+    ingressClassName: nginx
+    hosts:
+      - name: airflow.k8s.tailnet
+    path: /
+    pathType: Prefix
+    annotations:
+      nginx.ingress.kubernetes.io/proxy-body-size: "100m"
+    tls:
+      enabled: false
 
 executor: "KubernetesExecutor"
 
@@ -36,6 +46,10 @@ config:
     executor: KubernetesExecutor
     dags_are_paused_at_creation: "True"
     load_examples: "False"
+
+  webserver:
+    base_url: "http://airflow.k8s.tailnet:30296"
+    enable_proxy_fix: "True"
 
   kubernetes:
     namespace: orchestration
