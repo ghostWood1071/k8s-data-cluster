@@ -31,7 +31,7 @@ data:
     	</property>
     	<property>
     		<name>fs.s3a.secret.key</name>
-    		<value>minio@demo!</value>
+    		<value>minioadmin</value>
     	</property>
     	<property>
     		<name>fs.s3a.endpoint</name>
