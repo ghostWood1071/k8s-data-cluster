@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: spark-thrift
+  namespace: compute
+spec:
+  type: ClusterIP
+  selector:
+    app: spark-thriftserver
+  ports:
+    - name: thrift
+      port: 10000
+      targetPort: 10000
+    - name: spark-ui
+      port: 4040
+      targetPort: 4040
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: spark-thrift-driver
+  namespace: compute
+spec:
+  clusterIP: None
+  selector:
+    app: spark-thriftserver
+  ports:
+    - name: driver-rpc
+      port: 7078
+      targetPort: 7078
+    - name: blockmanager
+      port: 7079
+      targetPort: 7079
+    - name: spark-ui
+      port: 4040
+      targetPort: 4040

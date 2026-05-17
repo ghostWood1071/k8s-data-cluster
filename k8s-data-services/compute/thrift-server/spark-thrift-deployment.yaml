@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spark-thriftserver
+  namespace: compute
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spark-thriftserver
+  template:
+    metadata:
+      labels:
+        app: spark-thriftserver
+    spec:
+      serviceAccountName: spark
+      containers:
+        - name: spark-thriftserver
+          image: ghostwood/mbs-spark:1.0.7-protobuf
+          imagePullPolicy: IfNotPresent
+
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+
+          envFrom:
+            - secretRef:
+                name: minio-secret
+
+          ports:
+            - name: thrift
+              containerPort: 10000
+            - name: spark-ui
+              containerPort: 4040
+            - name: driver-rpc
+              containerPort: 7078
+            - name: blockmanager
+              containerPort: 7079
+
+          command:
+            - /bin/bash
+            - -lc
+            - |
+              /opt/spark/sbin/start-thriftserver.sh \
+                --master k8s://https://kubernetes.default.svc \
+                --deploy-mode client \
+                --name spark-thriftserver \
+                --conf spark.kubernetes.namespace=compute \
+                --conf spark.kubernetes.container.image=ghostwood/mbs-spark:1.0.7-protobuf \
+                --conf spark.kubernetes.authenticate.serviceAccountName=spark \
+                --conf spark.kubernetes.driver.pod.name=${POD_NAME} \
+                --conf spark.driver.host=spark-thrift-driver.compute.svc.cluster.local \
+                --conf spark.driver.bindAddress=0.0.0.0 \
+                --conf spark.driver.port=7078 \
+                --conf spark.blockManager.port=7079 \
+                --conf spark.ui.port=4040 \
+                --conf spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension \
+                --conf spark.sql.catalog.spark_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog \
+                --conf spark.sql.catalogImplementation=hive \
+                --conf spark.hadoop.hive.metastore.uris=thrift://hive-metastore.metastore.svc.cluster.local:9083 \
+                --conf spark.sql.warehouse.dir=s3a://warehouse/ \
+                --conf spark.hadoop.fs.s3a.endpoint=http://minio.storage.svc.cluster.local:9000 \
+                --conf spark.hadoop.fs.s3a.access.key=minioadmin \
+                --conf spark.hadoop.fs.s3a.secret.key=minioadmin \
+                --conf spark.hadoop.fs.s3a.path.style.access=true \
+                --conf spark.hadoop.fs.s3a.impl=org.apache.hadoop.fs.s3a.S3AFileSystem \
+                --conf spark.sql.sources.partitionOverwriteMode=dynamic \
+                --conf spark.eventLog.enabled=true \
+                --conf spark.eventLog.dir=s3a://spark-logs/events \
+                --conf spark.driver.extraJavaOptions="-Divy.cache.dir=/tmp -Divy.home=/tmp" \
+                --conf spark.executor.instances=2 \
+                --conf spark.executor.cores=1 \
+                --conf spark.executor.memory=2g \
+                --conf spark.driver.memory=1g \
+                --conf spark.sql.shuffle.partitions=8 \
+                --hiveconf hive.server2.thrift.bind.host=0.0.0.0 \
+                --hiveconf hive.server2.thrift.port=10000
+
+              tail -F /opt/spark/logs/*.out
