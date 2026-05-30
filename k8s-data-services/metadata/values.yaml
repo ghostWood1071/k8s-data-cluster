@@ -1,0 +1,61 @@
+# deps-values.yaml
+
+airflow:
+  enabled: false
+
+mysql:
+  enabled: true
+  fullnameOverride: mysql
+  architecture: standalone
+
+  auth:
+    rootPassword: "datalabutehy"
+    database: openmetadata_db
+    username: openmetadata_user
+    password: openmetadata_password
+
+  primary:
+    extraFlags: "--sort_buffer_size=20M"
+    persistence:
+      enabled: true
+      storageClass: longhorn
+      size: 10Gi
+
+  initdbScripts:
+    init_openmetadata_db_scripts.sql: |
+      CREATE DATABASE IF NOT EXISTS openmetadata_db;
+      CREATE USER IF NOT EXISTS 'openmetadata_user'@'%' IDENTIFIED BY 'openmetadata_password';
+      GRANT ALL PRIVILEGES ON openmetadata_db.* TO 'openmetadata_user'@'%' WITH GRANT OPTION;
+      FLUSH PRIVILEGES;
+      COMMIT;
+
+opensearch:
+  enabled: true
+  clusterName: opensearch
+  fullnameOverride: opensearch
+  nodeGroup: ""
+  singleNode: true
+
+  protocol: http
+  opensearchJavaOpts: "-Xmx1g -Xms1g"
+
+  persistence:
+    enabled: true
+    storageClass: longhorn
+    size: 10Gi
+
+  config:
+    opensearch.yml: |
+      plugins.security.disabled: true
+      indices.query.bool.max_clause_count: 4096
+
+  sysctlInit:
+    enabled: true
+
+  resources:
+    requests:
+      cpu: "500m"
+      memory: "1Gi"
+    limits:
+      cpu: "2"
+      memory: "2Gi"

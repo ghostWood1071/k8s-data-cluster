@@ -1,0 +1,101 @@
+replicaCount: 1
+
+openmetadata:
+  config:
+    logLevel: INFO
+    clusterName: openmetadata
+
+    openmetadata:
+      host: "0.0.0.0"
+      port: 8585
+      adminPort: 8586
+
+    elasticsearch:
+      enabled: true
+      host: opensearch
+      searchType: opensearch
+      port: 9200
+      scheme: http
+      auth:
+        enabled: false
+
+    database:
+      enabled: true
+      host: mysql
+      port: 3306
+      driverClass: com.mysql.cj.jdbc.Driver
+      dbScheme: mysql
+      databaseName: openmetadata_db
+      auth:
+        username: openmetadata_user
+        password:
+          secretRef: mysql-secrets
+          secretKey: openmetadata-mysql-password
+      dbParams: "allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC"
+
+    pipelineServiceClientConfig:
+      enabled: true
+      type: airflow
+
+      metadataApiEndpoint: http://openmetadata.metadata.svc.cluster.local:8585/api
+
+      airflow:
+        className: "org.openmetadata.service.clients.pipeline.airflow.AirflowRESTClient"
+        apiEndpoint: http://airflow-webserver.orchestration.svc.cluster.local:8080
+        verifySsl: no-ssl
+        hostIp: ""
+        ingestionIpInfoEnabled: false
+        healthCheckInterval: 300
+        sslCertificatePath: "/no/path"
+
+        auth:
+          enabled: true
+          username: admin
+          password:
+            secretRef: airflow-secrets
+            secretKey: openmetadata-airflow-password
+
+    authentication:
+      enabled: true
+      provider: basic
+      clientType: public
+      publicKeys:
+        - "http://openmetadata:8585/api/v1/system/config/jwks"
+      enableSelfSignup: true
+
+    authorizer:
+      enabled: true
+      className: "org.openmetadata.service.security.DefaultAuthorizer"
+      containerRequestFilter: "org.openmetadata.service.security.JwtFilter"
+      initialAdmins:
+        - "admin"
+      allowedEmailRegistrationDomains:
+        - "all"
+      principalDomain: "open-metadata.org"
+      enforcePrincipalDomain: false
+      enableSecureSocketConnection: false
+
+service:
+  type: ClusterIP
+  port: 8585
+  adminPort: 8586
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "100m"
+  hosts:
+    - host: openmetadata.k8s.tailnet
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+resources:
+  requests:
+    cpu: "500m"
+    memory: "1Gi"
+  limits:
+    cpu: "2"
+    memory: "2Gi"
