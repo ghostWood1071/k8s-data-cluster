@@ -54,4 +54,28 @@ data:
     		<name>hive.metastore.warehouse.dir</name>
     		<value>s3a://warehouse/</value>
     	</property>
+    	<property>
+    		<name>hive.metastore.uris</name>
+    		<value>thrift://hive-metastore.metastore.svc.cluster.local:9083</value>
+    	</property>
+    	<property>
+    		<name>hive.server2.thrift.bind.host</name>
+    		<value>0.0.0.0</value>
+    	</property>
+    	<property>
+    		<name>hive.server2.thrift.port</name>
+    		<value>10000</value>
+    	</property>
+    	<property>
+    		<name>hive.exec.scratchdir</name>
+    		<value>/tmp/hive-scratch</value>
+    	</property>
+    	<property>
+    		<name>hive.scratch.dir.permission</name>
+    		<value>733</value>
+    	</property>
+    	<property>
+    		<name>hive.metastore.event.db.notification.api.auth</name>
+    		<value>false</value>
+    	</property>
     </configuration>

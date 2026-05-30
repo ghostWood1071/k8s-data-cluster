@@ -1,0 +1,55 @@
+pipeline {
+    agent any
+    parameters {
+        booleanParam(
+            name: 'FORCE_DEPLOY_MINIO',
+            defaultValue: false,
+            description: ''
+        )
+    }
+    stages {
+
+        stage('Apply namespaces') {
+            // when {
+            //     changeset "k8s-data-services/namespaces.yaml"
+            // }
+            steps {
+                echo 'Start apply namespace changes'
+                script {
+                    sh 'kubectl apply -f k8s-data-services/namespaces.yaml'
+                }
+            }
+        }
+
+       stage('Deploy MinIO') {
+            when {
+                anyOf {
+                    changeset 'k8s-data-services/storage/*'
+                    expression { params.FORCE_DEPLOY_MINIO }  
+                }
+}
+            steps {
+                script {
+                    withCredentials([usernamePassword(
+                        credentialsId: 'minio-creds',
+                        usernameVariable: 'MINIO_ROOT_USER',
+                        passwordVariable: 'MINIO_ROOT_PASSWORD'
+                    )]) {
+                        sh 'set +x'
+                        sh '''
+                            export MINIO_ROOT_USER=$MINIO_ROOT_USER
+                            export MINIO_ROOT_PASSWORD=$MINIO_ROOT_PASSWORD
+                            
+                            envsubst < k8s-data-services/storage/03-minio-secret.yaml | kubectl apply -f -
+                            kubectl apply -f k8s-data-services/storage/00-minio-headless-service.yaml
+                            kubectl apply -f k8s-data-services/storage/01-minio-service.yaml
+                            kubectl apply -f k8s-data-services/storage/02-minio-sts.yaml
+                            
+                            kubectl rollout status statefulset/minio -n storage --timeout=300s
+                        '''
+                    }
+                }
+            }
+        }
+    }
+}

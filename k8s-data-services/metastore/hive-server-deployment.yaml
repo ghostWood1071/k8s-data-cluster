@@ -1,45 +1,46 @@
-#apiVersion: apps/v1
-#kind: Deployment
-#metadata:
-#  name: hive-server
-#  namespace: metastore
-#spec:
-#  selector:
-#    matchLabels: &id001
-#      app: hive-server
-#      role: hive-server
-#  template:
-#    metadata:
-#      labels: *id001
-#    spec:
-#      containers:
-#      - name: hive-server
-#        image: ghostwood/hive:4.0.0
-#        ports:
-#        - containerPort: 10000
-#        volumeMounts:
-#        - name: hive-site
-#          mountPath: /opt/hive/conf
-#        args:
-#        - --service
-#        - hiveserver2
-#        env:
-#          - name: SERVICE_NAME
-#            value: metastore
-#          - name: HIVE_METASTORE_DB_TYPE
-#            value: postgres
-#          - name: HIVE_METASTORE_USER
-#            value: hive
-#          - name: HIVE_METASTORE_PASSWORD
-#            value: hive
-#          - name: HIVE_METASTORE_DB_HOST
-#            value: postgres-metastore
-#          - name: HIVE_METASTORE_DB_NAME
-#            value: metastore
-#          - name: DB_DRIVER
-#            value: postgres
-#      volumes:
-#      - name: hive-site
-#        configMap:
-#          name: hive-site
-#  replicas: 1
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hive-server
+  namespace: metastore
+spec:
+  selector:
+    matchLabels: &id001
+      app: hive-server
+      role: hive-server
+  template:
+    metadata:
+      labels: *id001
+    spec:
+      containers:
+      - name: hive-server
+        image: ghostwood/hive:4.0.0
+        ports:
+        - containerPort: 10000
+        volumeMounts:
+        - name: hive-site
+          mountPath: /opt/hive/conf/hive-site.xml
+          subPath: hive-site.xml
+        args:
+        - --service
+        - hiveserver2
+        env:
+          - name: SERVICE_NAME
+            value: hiveserver2
+          - name: HIVE_METASTORE_DB_TYPE
+            value: postgres
+          - name: HIVE_METASTORE_USER
+            value: hive
+          - name: HIVE_METASTORE_PASSWORD
+            value: hive
+          - name: HIVE_METASTORE_DB_HOST
+            value: postgres-metastore
+          - name: HIVE_METASTORE_DB_NAME
+            value: metastore
+          - name: DB_DRIVER
+            value: postgres
+      volumes:
+      - name: hive-site
+        configMap:
+          name: hive-site
+  replicas: 1

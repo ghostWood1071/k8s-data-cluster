@@ -1,6 +1,7 @@
-from apache/spark:3.5.7-scala2.12-java17-python3-ubuntu
+FROM apache/spark:3.5.7-scala2.12-java17-python3-ubuntu
 USER root
-RUN apt-get update && apt-get install -y curl && apt-get install -y telnet
+RUN apt-get update && apt-get install -y curl telnet iputils-ping build-essential python3-dev libsasl2-dev
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel
 RUN curl -L -o /opt/spark/jars/hadoop-aws-3.3.4.jar https://repo.maven.apache.org/maven2/org/apache/hadoop/hadoop-aws/3.3.4/hadoop-aws-3.3.4.jar
 RUN curl -L -o /opt/spark/jars/aws-java-sdk-bundle-1.12.367.jar https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-bundle/1.12.367/aws-java-sdk-bundle-1.12.367.jar
 RUN curl -L -o /opt/spark/jars/delta-spark_2.12-3.2.0.jar https://repo1.maven.org/maven2/io/delta/delta-spark_2.12/3.2.0/delta-spark_2.12-3.2.0.jar
@@ -22,5 +23,8 @@ RUN curl -L https://repo1.maven.org/maven2/org/xerial/snappy/snappy-java/1.1.10.
 RUN curl -L -o /opt/spark/jars/delta-storage-3.2.0.jar https://repo1.maven.org/maven2/io/delta/delta-storage/3.2.0/delta-storage-3.2.0.jar
 RUN curl -L -o /opt/spark/jars/ojdbc11-23.7.0.25.01.jar https://repo1.maven.org/maven2/com/oracle/database/jdbc/ojdbc11/23.7.0.25.01/ojdbc11-23.7.0.25.01.jar
 RUN curl -L -o /opt/spark/jars/mysql-connector-j-8.3.0.jar https://repo1.maven.org/maven2/com/mysql/mysql-connector-j/8.3.0/mysql-connector-j-8.3.0.jar
-RUN apt-get install -y iputils-ping 
+
+COPY neutronx-0.1.0-py3-none-any.whl /tmp/
+RUN pip install /tmp/neutronx-0.1.0-py3-none-any.whl && rm /tmp/neutronx-0.1.0-py3-none-any.whl
+
 USER spark
