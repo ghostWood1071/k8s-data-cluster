@@ -1,0 +1,13 @@
+# Cluster hiện chỉ có một control-plane và đang chạy nhiều dịch vụ.
+# Bắt đầu với một Rancher pod để giảm tải.
+hostname: rancher.k8s.tailnet
+
+bootstrapPassword: "Rancher@123"
+
+replicas: 1
+
+ingress:
+  enabled: true
+  ingressClassName: nginx
+  tls:
+    source: rancher

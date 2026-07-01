@@ -173,3 +173,101 @@ Change to Minio cluster
     helm repo add flink-operator-repo https://downloads.apache.org/flink/flink-kubernetes-operator-1.13.0
 	helm repo update
 	helm install flink-kubernetes-operator flink-operator-repo/flink-kubernetes-operator --namespace cdc --create-namespace --set watchNamespaces="{cdc}"
+
+
+# Rancher Deployment
+1. Install cert-manager
+```bash
+helm upgrade --install cert-manager   oci://quay.io/jetstack/charts/cert-manager   --namespace cert-manager   --create-namespace   --version v1.20.3   --set crds.enabled=true   --wait   --timeout 10m
+```
+Verify:
+```bash
+kubectl get pods -n cert-manager
+```
+2. Add the Rancher Helm repository
+```bash
+helm repo add rancher-stable https://releases.rancher.com/server-charts/stable
+helm repo update
+```
+3. Configure Rancher
+Create `values-rancher.yaml`:
+```yaml
+hostname: rancher.k8s.tailnet
+
+bootstrapPassword: "CHANGE_THIS_PASSWORD"
+
+replicas: 1
+
+ingress:
+  enabled: true
+  ingressClassName: nginx
+  tls:
+    source: rancher
+```
+4. Deploy Rancher
+```bash
+cd k8s-data-services/rancher
+```
+```bash
+helm upgrade --install rancher rancher-stable/rancher   --namespace cattle-system   --create-namespace   --version 2.14.3   --values values-rancher.yaml   --wait   --timeout 15m
+```
+5. Verify the deployment
+```bash
+helm list -n cattle-system
+kubectl get pods -n cattle-system
+kubectl get svc,ingress -n cattle-system
+```
+The Rancher Pod should be in the `Running` state.
+6. Configure the Windows hostname
+Open this file as Administrator:
+```text
+C:\Windows\System32\drivers\etc\hosts
+```
+Add:
+```text
+100.119.252.2 rancher.k8s.tailnet
+```
+Flush the DNS cache:
+```powershell
+ipconfig /flushdns
+```
+Test the connection:
+```powershell
+curl.exe -vk https://rancher.k8s.tailnet:31662/healthz
+```
+Expected result:
+```text
+HTTP/1.1 200 OK
+ok
+```
+7. Access Rancher
+Open:
+```text
+https://rancher.k8s.tailnet:31662
+```
+Login credentials:
+```text
+Username: admin
+Password: value of bootstrapPassword
+```
+Set the Rancher Server URL to:
+```text
+https://rancher.k8s.tailnet:31662
+```
+Troubleshooting
+Check Rancher logs:
+```bash
+kubectl logs deployment/rancher   -n cattle-system   --tail=200
+```
+Check the Ingress:
+```bash
+kubectl describe ingress rancher -n cattle-system
+```
+Check all Rancher resources:
+```bash
+kubectl get all -n cattle-system
+```
+Uninstall
+```bash
+helm uninstall rancher -n cattle-system
+```
