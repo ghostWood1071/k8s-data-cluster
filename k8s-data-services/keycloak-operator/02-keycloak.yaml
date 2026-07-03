@@ -1,0 +1,45 @@
+apiVersion: k8s.keycloak.org/v2beta1
+kind: Keycloak
+metadata:
+  name: keycloak
+  namespace: keycloak
+
+spec:
+  instances: 1
+
+  db:
+    vendor: postgres
+    host: keycloak-postgresql.keycloak.svc.cluster.local
+    port: 5432
+    database: keycloak
+
+    usernameSecret:
+      name: keycloak-db-secret
+      key: username
+
+    passwordSecret:
+      name: keycloak-db-secret
+      key: password
+
+  http:
+    httpEnabled: true
+    httpPort: 8080
+
+  hostname:
+    hostname: https://keycloak.k8s.tailnet:31662
+
+  proxy:
+    headers: xforwarded
+
+  ingress:
+    enabled: true
+    className: nginx
+    tlsSecret: keycloak-tls
+
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1Gi
+    limits:
+      cpu: "2"
+      memory: 2Gi
