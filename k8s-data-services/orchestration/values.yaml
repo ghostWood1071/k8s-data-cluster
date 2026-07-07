@@ -37,9 +37,9 @@ postgresql:
       existingClaim: pvc-airflow-postgres
       size: 8Gi
 
-defaultAirflowRepository: ghostwood/airflow
-defaultAirflowTag: "2.0.3"
-airflowVersion: "2.11.0"
+defaultAirflowRepository: linhdv2312/airflow
+defaultAirflowTag: "2.10.3"
+airflowVersion: "2.10.3"
 
 config:
   core:
