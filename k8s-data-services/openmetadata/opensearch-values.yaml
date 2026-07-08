@@ -35,3 +35,15 @@ resources:
   limits:
     cpu: "2"
     memory: 4Gi
+  
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "100m"
+  hosts:
+    - host: openmetadata.k8s.tailnet
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
