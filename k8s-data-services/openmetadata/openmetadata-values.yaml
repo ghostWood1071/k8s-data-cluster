@@ -44,19 +44,6 @@ openmetadata:
         rbac:
           enabled: true
 
-    openLineageConfig:  
-      enabled: true
-      source:
-        type: openlineage
-        serviceName: openlineage-kafka
-        sourceConfig:
-          config:
-            type: OpenLineage
-            kafkaConfig:
-              bootstrapServers: kafka-broker.streaming.svc.cluster.local:9092
-              topicName: openlineage.events
-              groupId: openmetadata-lineage-consumer
-
 omjobOperator:
   enabled: false
 
