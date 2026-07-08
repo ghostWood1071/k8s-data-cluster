@@ -1,120 +1,63 @@
-airflowVersion: 2.11.0
-config:
-  core:
-    dags_are_paused_at_creation: "True"
-    executor: KubernetesExecutor
-    load_examples: "False"
-  kubernetes:
-    namespace: orchestration
-  kubernetes_executor:
-    deleteWorkerPods: "True"
-    namespace: orchestration
-  logging:
-    remoteLogging: false
-  webserver:
-    base_url: https://airflow.k8s.tailnet:31662
-    enable_proxy_fix: "True"
-    proxy_fix_x_for: "1"
-    proxy_fix_x_host: "1"
-    proxy_fix_x_port: "1"
-    proxy_fix_x_proto: "1"
-createUserJob:
-    enabled: false
-dags:
-  gitSync:
-    branch: master
-    enabled: true
-    period: 30s
-    repo: https://github.com/ghostWood1071/native-data-platform.git
-    rev: HEAD
-    subPath: orchestration/dags
-  persistence:
-    accessMode: ReadWriteMany
-    enabled: true
-    size: 10Gi
-    storageClassName: longhorn
-data:
-  metadataConnection:
-    db: airflow
-    host: airflow-postgresql.orchestration.svc.cluster.local
-    pass: postgres
-    port: 5432
-    protocol: postgresql
-    user: postgres
-defaultAirflowRepository: ghostwood/airflow
-defaultAirflowTag: 2.0.3
-executor: KubernetesExecutor
+# Overlay Airflow trong namespace orchestration.
+# Không deploy hoặc chỉnh sửa tài nguyên Keycloak.
+webserverSecretKeySecretName: airflow-webserver-secret
+
 ingress:
   web:
-    annotations:
-      nginx.ingress.kubernetes.io/backend-protocol: HTTP
-      nginx.ingress.kubernetes.io/proxy-body-size: 100m
-      nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
-      nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
-      nginx.ingress.kubernetes.io/ssl-redirect: "true"
     enabled: true
-    hosts:
-    - name: airflow.k8s.tailnet
     ingressClassName: nginx
+    hosts:
+      - name: airflow.k8s.tailnet
     path: /
     pathType: Prefix
+    annotations:
+      nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+      nginx.ingress.kubernetes.io/proxy-body-size: "100m"
+      nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+      nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+      nginx.ingress.kubernetes.io/ssl-redirect: "false"
     tls:
-      enabled: true
-      secretName: airflow-tls
-logs:
-  persistence:
-    enabled: true
-    size: 10Gi
-    storageClassName: longhorn
-migrateDatabaseJob:
-  useHelmHooks: false
-postgresql:
-  auth:
-    password: postgres
-    username: postgres
-  enabled: true
-  primary:
-    persistence:
-      enabled: true
-      existingClaim: pvc-airflow-postgres
-      size: 8Gi
-redis:
+      enabled: false
+
+config:
+  webserver:
+    base_url: "http://airflow.k8s.tailnet:30296"
+    enable_proxy_fix: "True"
+    proxy_fix_x_for: "1"
+    proxy_fix_x_proto: "1"
+    proxy_fix_x_host: "0"
+    proxy_fix_x_port: "0"
+
+createUserJob:
   enabled: false
-scheduler:
-  replicas: 1
-  resources:
-    requests:
-      cpu: 300m
-      memory: 1Gi
-serviceAccount:
-  create: true
-  name: airflow-worker
-triggerer:
-  enabled: true
-  persistence:
-    enabled: false
+  useHelmHooks: false
+
 webserver:
   defaultUser:
     enabled: false
-    password: datalab
-    username: admin
+
   env:
-  - name: KEYCLOAK_CLIENT_ID
-    valueFrom:
-      secretKeyRef:
-        key: KEYCLOAK_CLIENT_ID
-        name: airflow-keycloak
-  - name: KEYCLOAK_CLIENT_SECRET
-    valueFrom:
-      secretKeyRef:
-        key: KEYCLOAK_CLIENT_SECRET
-        name: airflow-keycloak
-  - name: KEYCLOAK_PUBLIC_ISSUER
-    value: https://keycloak.k8s.tailnet:31662/realms/company
-  - name: KEYCLOAK_INTERNAL_REALM_URL
-    value: http://keycloak-service.keycloak.svc.cluster.local:8080/realms/company
-  - name: AIRFLOW_PUBLIC_URL
-    value: https://airflow.k8s.tailnet:31662
+    - name: KEYCLOAK_CLIENT_ID
+      valueFrom:
+        secretKeyRef:
+          name: airflow-keycloak
+          key: KEYCLOAK_CLIENT_ID
+
+    - name: KEYCLOAK_CLIENT_SECRET
+      valueFrom:
+        secretKeyRef:
+          name: airflow-keycloak
+          key: KEYCLOAK_CLIENT_SECRET
+
+    - name: KEYCLOAK_PUBLIC_ISSUER
+      value: "http://keycloak.k8s.tailnet:30296/realms/data-team"
+
+    - name: KEYCLOAK_INTERNAL_REALM_URL
+      value: "http://keycloak-service.keycloak.svc.cluster.local:8080/realms/data-team"
+
+    - name: AIRFLOW_PUBLIC_URL
+      value: "http://airflow.k8s.tailnet:30296"
+
   webserverConfig: |-
     import logging
     import os
@@ -178,6 +121,8 @@ webserver:
                 "api_base_url": f"{INTERNAL_OIDC_BASE}/",
                 "access_token_url": f"{INTERNAL_OIDC_BASE}/token",
                 "authorize_url": f"{PUBLIC_OIDC_BASE}/auth",
+                "jwks_uri": f"{INTERNAL_OIDC_BASE}/certs",
+                "issuer": PUBLIC_ISSUER,
                 "request_token_url": None,
                 "client_kwargs": {
                     "scope": "openid email profile",
@@ -241,6 +186,3 @@ webserver:
             }
 
     SECURITY_MANAGER_CLASS = KeycloakSecurityManager
-worker:
-  persistence:
-    enabled: false

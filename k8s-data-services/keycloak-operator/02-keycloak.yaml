@@ -26,7 +26,7 @@ spec:
     httpPort: 8080
 
   hostname:
-    hostname: https://keycloak.k8s.tailnet:31662
+    hostname: http://keycloak.k8s.tailnet:30296
 
   proxy:
     headers: xforwarded
@@ -34,7 +34,6 @@ spec:
   ingress:
     enabled: true
     className: nginx
-    tlsSecret: keycloak-tls
 
   resources:
     requests:
