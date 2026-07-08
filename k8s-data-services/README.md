@@ -271,3 +271,54 @@ Uninstall
 ```bash
 helm uninstall rancher -n cattle-system
 ```
+# Openmetadata Deployment
+1. Create namespace
+```bash
+kubectl create namespace openmetadata
+```
+2. Create secrect openmetadata-postgresql
+```bash
+kubectl create secret generic openmetadata-postgresql-secret \
+  -n openmetadata \
+  --from-literal=postgres-password='...' \
+  --from-literal=password='....'
+```
+3. Deploy openmetadata-postgresql
+```bash
+cd k8s-data-services/openmetadata
+```
+```bash
+helm install openmetadata-postgresql \
+  oci://registry-1.docker.io/bitnamicharts/postgresql \
+  -n openmetadata \
+  -f postgresql-values.yaml
+```
+
+4. Deploy openmetadata-search
+
+```bash
+echo "vm.max_map_count=262144" | sudo tee /etc/sysctl.d/99-opensearch.conf
+sudo sysctl --system
+```
+
+```bash
+helm repo add opensearch https://opensearch-project.github.io/helm-charts/
+helm repo update
+```
+```bash
+helm install openmetadata-opensearch opensearch/opensearch \
+  -n openmetadata \
+  -f opensearch-values.yaml
+```
+
+5. Deploy openmetadata
+```bash
+helm repo add open-metadata https://helm.open-metadata.org/
+helm repo update
+```
+
+```bash
+helm install openmetadata open-metadata/openmetadata \
+  -n openmetadata \
+  -f openmetadata-values.yaml
+```

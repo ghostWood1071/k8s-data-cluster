@@ -1,0 +1,37 @@
+image:
+  registry: docker.io
+  repository: bitnamilegacy/postgresql
+  tag: 16.4.0-debian-12-r0
+  pullPolicy: IfNotPresent
+
+fullnameOverride: openmetadata-postgresql
+
+architecture: standalone
+
+auth:
+  enablePostgresUser: true
+  existingSecret: openmetadata-postgresql-secret
+  username: openmetadata_user
+  database: openmetadata_db
+  secretKeys:
+    adminPasswordKey: postgres-password
+    userPasswordKey: password
+
+primary:
+  service:
+    type: ClusterIP
+    ports:
+      postgresql: 5432
+
+  persistence:
+    enabled: true
+    storageClass: longhorn
+    size: 20Gi
+
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: "1"
+      memory: 1Gi
