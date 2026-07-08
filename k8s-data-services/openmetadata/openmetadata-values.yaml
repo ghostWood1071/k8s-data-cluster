@@ -17,6 +17,10 @@ openmetadata:
         password:
           secretRef: openmetadata-postgresql-secret
           secretKey: password
+    openmetadata:
+      host: "0.0.0.0"
+      port: 8585
+      adminPort: 8586
 
     elasticsearch:
       enabled: true
@@ -47,11 +51,18 @@ openmetadata:
 omjobOperator:
   enabled: false
 
-service:
-  type: NodePort
-  port: 8585
-  adminPort: 8586
-
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "100m"
+  hosts:
+    - host: openmetadata.k8s.tailnet
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+  
 resources:
   requests:
     cpu: 500m
