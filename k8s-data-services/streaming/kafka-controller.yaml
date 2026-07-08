@@ -1,11 +1,13 @@
 # =========================
-# Headless Service - Controller
+# Headless Service - Kafka Controller
 # =========================
 apiVersion: v1
 kind: Service
 metadata:
   name: kafka-controller
   namespace: streaming
+  labels:
+    app: kafka-controller
 spec:
   clusterIP: None
   selector:
@@ -13,16 +15,19 @@ spec:
   ports:
     - name: controller
       port: 29093
+      targetPort: 29093
 
 ---
 # =========================
-# StatefulSet - Controller
+# StatefulSet - Kafka Controller
 # =========================
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: kafka-controller
   namespace: streaming
+  labels:
+    app: kafka-controller
 spec:
   serviceName: kafka-controller
   replicas: 1
@@ -37,6 +42,10 @@ spec:
       containers:
         - name: kafka
           image: chiennc4805/kafka-controller:1.0.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: controller
+              containerPort: 29093
           volumeMounts:
             - name: data
               mountPath: /var/lib/kafka/data

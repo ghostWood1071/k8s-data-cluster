@@ -1,3 +1,8 @@
+# OPTIONAL FILE
+# Không apply file này nếu cluster của bạn đang dùng Longhorn dynamic provisioning.
+# Các workload chính hiện dùng storageClassName: longhorn.
+# File này chỉ giữ lại để tham khảo nếu sau này bạn muốn tự quản lý hostPath PV.
+
 apiVersion: v1
 kind: PersistentVolume
 metadata:
@@ -37,6 +42,7 @@ spec:
     storage: 1Gi
   accessModes:
     - ReadWriteOnce
-  hostPath:             
-    path: /demo-kafka/data/postgres-db
+  storageClassName: postgres-streaming-storage
   persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: /demo-kafka/data/postgres-db
