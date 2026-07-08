@@ -1,0 +1,61 @@
+replicaCount: 1
+
+image:
+  pullPolicy: IfNotPresent
+
+openmetadata:
+  config:
+    database:
+      enabled: true
+      host: openmetadata-postgresql.openmetadata.svc.cluster.local
+      port: 5432
+      driverClass: org.postgresql.Driver
+      dbScheme: postgresql
+      databaseName: openmetadata_db
+      auth:
+        username: openmetadata_user
+        password:
+          secretRef: openmetadata-postgresql-secret
+          secretKey: password
+
+    elasticsearch:
+      enabled: true
+      host: opensearch-cluster-master.openmetadata.svc.cluster.local
+      port: 9200
+      scheme: http
+      searchType: opensearch
+      connectionTimeoutSecs: 5
+      socketTimeoutSecs: 60
+      keepAliveTimeoutSecs: 600
+      batchSize: 10
+      auth:
+        enabled: false
+
+    pipelineServiceClientConfig:
+      enabled: true
+      type: k8s
+      className: org.openmetadata.service.clients.pipeline.k8s.K8sPipelineClient
+      metadataApiEndpoint: http://openmetadata.openmetadata.svc.cluster.local:8585/api
+      k8s:
+        serviceAccountName: openmetadata-ingestion
+        ingestionImage: docker.getcollate.io/openmetadata/ingestion-base:1.13.1
+        imagePullPolicy: IfNotPresent
+        useOMJobOperator: false
+        rbac:
+          enabled: true
+
+omjobOperator:
+  enabled: false
+
+service:
+  type: NodePort
+  port: 8585
+  adminPort: 8586
+
+resources:
+  requests:
+    cpu: 500m
+    memory: 1Gi
+  limits:
+    cpu: "2"
+    memory: 4Gi
