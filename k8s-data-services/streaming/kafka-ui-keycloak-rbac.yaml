@@ -27,7 +27,7 @@ data:
             provider: keycloak
             scope: openid
             authorization-grant-type: authorization_code
-            issuer-uri: http://keycloak.k8s.tailnet:30296/realms/data-team
+            issuer-uri: https://keycloak.datalabutehy.com/realms/data-team
             redirect-uri: http://kafka-ui.k8s.tailnet:30296/login/oauth2/code/keycloak
             user-name-attribute: preferred_username
             custom-params:

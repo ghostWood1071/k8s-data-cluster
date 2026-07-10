@@ -26,14 +26,15 @@ spec:
     httpPort: 8080
 
   hostname:
-    hostname: http://keycloak.k8s.tailnet:30296
+    hostname: https://keycloak.datalabutehy.com
+    strict: false
+    backchannelDynamic: true
 
   proxy:
     headers: xforwarded
 
   ingress:
-    enabled: true
-    className: nginx
+    enabled: false
 
   resources:
     requests:

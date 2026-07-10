@@ -50,7 +50,7 @@ webserver:
           key: KEYCLOAK_CLIENT_SECRET
 
     - name: KEYCLOAK_PUBLIC_ISSUER
-      value: "http://keycloak.k8s.tailnet:30296/realms/data-team"
+      value: "https://keycloak.datalabutehy.com/realms/data-team"
 
     - name: KEYCLOAK_INTERNAL_REALM_URL
       value: "http://keycloak-service.keycloak.svc.cluster.local:8080/realms/data-team"
