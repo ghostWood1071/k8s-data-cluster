@@ -5,6 +5,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 NAMESPACE="${NAMESPACE:-orchestration}"
 RELEASE="${RELEASE:-airflow}"
 AIRFLOW_HOST="${AIRFLOW_HOST:-airflow.k8s.tailnet}"
+AIRFLOW_PUBLIC_URL="${AIRFLOW_PUBLIC_URL:-https://airflow.datalabutehy.com}"
 VALUES_FILE="${VALUES_FILE:-$SCRIPT_DIR/values-keycloak-only-http.yaml}"
 
 for cmd in kubectl helm python3 openssl; do
@@ -100,9 +101,22 @@ helm upgrade "$RELEASE" apache-airflow/airflow \
   --wait \
   --timeout 30m
 
+echo "== Remove stale NGINX basic auth annotations from Airflow ingress =="
+for ingress_name in "${RELEASE}-ingress" "${RELEASE}-webserver"; do
+  kubectl annotate ingress "$ingress_name" \
+    -n "$NAMESPACE" \
+    nginx.ingress.kubernetes.io/auth-type- \
+    nginx.ingress.kubernetes.io/auth-secret- \
+    nginx.ingress.kubernetes.io/auth-realm- \
+    nginx.ingress.kubernetes.io/auth-url- \
+    nginx.ingress.kubernetes.io/auth-signin- \
+    --overwrite || true
+done
+
 echo "== Trạng thái orchestration =="
 helm status "$RELEASE" -n "$NAMESPACE"
 kubectl get pods,svc,ingress,pvc -n "$NAMESPACE" -o wide
 
 echo
-echo "Airflow: http://${AIRFLOW_HOST}:30296"
+echo "Airflow public: ${AIRFLOW_PUBLIC_URL}"
+echo "Airflow internal ingress: http://${AIRFLOW_HOST}:30296"

@@ -8,6 +8,7 @@ ingress:
     ingressClassName: nginx
     hosts:
       - name: airflow.k8s.tailnet
+      - name: airflow.datalabutehy.com
     path: /
     pathType: Prefix
     annotations:
@@ -21,11 +22,11 @@ ingress:
 
 config:
   webserver:
-    base_url: "http://airflow.k8s.tailnet:30296"
+    base_url: "https://airflow.datalabutehy.com"
     enable_proxy_fix: "True"
     proxy_fix_x_for: "1"
     proxy_fix_x_proto: "1"
-    proxy_fix_x_host: "0"
+    proxy_fix_x_host: "1"
     proxy_fix_x_port: "0"
 
 createUserJob:
@@ -56,7 +57,7 @@ webserver:
       value: "http://keycloak-service.keycloak.svc.cluster.local:8080/realms/data-team"
 
     - name: AIRFLOW_PUBLIC_URL
-      value: "http://airflow.k8s.tailnet:30296"
+      value: "https://airflow.datalabutehy.com"
 
   webserverConfig: |-
     import logging
