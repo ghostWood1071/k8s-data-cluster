@@ -3,18 +3,24 @@ config:
     dags_are_paused_at_creation: "True"
     executor: KubernetesExecutor
     load_examples: "False"
+
   kubernetes:
     namespace: orchestration
+
   kubernetes_executor:
     deleteWorkerPods: "True"
     namespace: orchestration
+
   logging:
     remoteLogging: false
+
   webserver:
     base_url: http://airflow.k8s.tailnet:30296
     enable_proxy_fix: "True"
+
 createUserJob:
   useHelmHooks: false
+
 dags:
   gitSync:
     branch: master
@@ -42,6 +48,7 @@ defaultAirflowRepository: ghostwood/airflow
 defaultAirflowTag: 3.0.0
 airflowVersion: 2.11.3
 executor: KubernetesExecutor
+
 images:
   airflow:
     pullPolicy: Always
@@ -52,7 +59,7 @@ extraEnv: |
 
   - name: AIRFLOW__KUBERNETES_EXECUTOR__POD_MUTATION_HOOK
     value: airflow_local_settings.pod_mutation_hook
-    
+
 ingress:
   web:
     annotations:
@@ -65,13 +72,16 @@ ingress:
     pathType: Prefix
     tls:
       enabled: false
+
 logs:
   persistence:
     enabled: true
     size: 10Gi
     storageClassName: longhorn
+
 migrateDatabaseJob:
   useHelmHooks: false
+
 postgresql:
   auth:
     password: postgres
@@ -82,6 +92,7 @@ postgresql:
       enabled: true
       existingClaim: pvc-airflow-postgres
       size: 8Gi
+      
 redis:
   enabled: false
 scheduler:
@@ -90,9 +101,11 @@ scheduler:
     requests:
       cpu: 300m
       memory: 1Gi
+
 serviceAccount:
   create: true
   name: airflow-worker
+
 triggerer:
   enabled: true
   persistence:
@@ -104,6 +117,7 @@ webserver:
     enabled: true
     password: datalab
     username: admin
+
 worker:
   persistence:
     enabled: false
