@@ -29,6 +29,7 @@ dags:
     enabled: true
     size: 10Gi
     storageClassName: longhorn
+
 data:
   metadataConnection:
     db: airflow
@@ -37,12 +38,22 @@ data:
     port: 5432
     protocol: postgresql
     user: postgres
+
 defaultAirflowRepository: linhdv2312/airflow
-defaultAirflowTag: 2.10.3
+defaultAirflowTag: 2.10.3-jars
+airflowVersion: 2.10.3
 executor: KubernetesExecutor
 images:
   airflow:
     pullPolicy: Always
+
+extraEnv: |
+  - name: PYTHONPATH
+    value: /opt/airflow/dags/json-sql-compiler:/opt/airflow/config
+
+  - name: AIRFLOW__KUBERNETES_EXECUTOR__POD_MUTATION_HOOK
+    value: airflow_local_settings.pod_mutation_hook
+    
 ingress:
   web:
     annotations:
