@@ -1,0 +1,5 @@
+images:
+  airflow:
+    repository: ghostwood/airflow
+    tag: 2.10.3-dbdag
+    pullPolicy: IfNotPresent

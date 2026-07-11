@@ -19,7 +19,8 @@ RUN apt-get update && \
 ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 ENV PATH="${JAVA_HOME}/bin:${PATH}"
 
-RUN mkdir -p /opt/airflow/jars
+RUN mkdir -p /opt/airflow/jars /opt/airflow/scripts \
+    && chown -R airflow:root /opt/airflow/scripts
 
 RUN curl -L -o /opt/airflow/jars/hadoop-aws-3.3.4.jar \
     https://repo.maven.apache.org/maven2/org/apache/hadoop/hadoop-aws/3.3.4/hadoop-aws-3.3.4.jar
@@ -77,3 +78,9 @@ RUN pip install --no-cache-dir \
     "apache-airflow==${AIRFLOW_VERSION}" \
     -r /requirements.txt \
     && pip check
+
+COPY --chown=airflow:root airflow-patches/airflow/utils/cli.py /home/airflow/.local/lib/python3.11/site-packages/airflow/utils/cli.py
+COPY --chown=airflow:root create_spark_k8s_connection.py /opt/airflow/scripts/create_spark_k8s_connection.py
+
+RUN python -m py_compile /home/airflow/.local/lib/python3.11/site-packages/airflow/utils/cli.py \
+    && python -m py_compile /opt/airflow/scripts/create_spark_k8s_connection.py
