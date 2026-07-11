@@ -28,7 +28,7 @@ data:
             scope: openid
             authorization-grant-type: authorization_code
             issuer-uri: https://keycloak.datalabutehy.com/realms/data-team
-            redirect-uri: http://kafka-ui.k8s.tailnet:30296/login/oauth2/code/keycloak
+            redirect-uri: https://kafka-ui.datalabutehy.com/login/oauth2/code/keycloak
             user-name-attribute: preferred_username
             custom-params:
               type: oauth
@@ -282,6 +282,16 @@ spec:
   ingressClassName: nginx
   rules:
     - host: kafka-ui.k8s.tailnet
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: kafka-ui
+                port:
+                  number: 8080
+    - host: kafka-ui.datalabutehy.com
       http:
         paths:
           - path: /

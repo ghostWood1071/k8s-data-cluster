@@ -2,7 +2,7 @@
 set -euo pipefail
 
 NAMESPACE="streaming"
-KAFKA_UI_HOST="kafka-ui.k8s.tailnet"
+KAFKA_UI_HOST="${KAFKA_UI_HOST:-kafka-ui.datalabutehy.com}"
 MANIFEST="${1:-kafka-ui-keycloak-rbac.yaml}"
 
 for command in kubectl; do
@@ -49,6 +49,6 @@ echo
 kubectl get deployment,pod,service,ingress   -n "${NAMESPACE}"   -l app.kubernetes.io/name=kafka-ui
 
 echo
-echo "URL: http://${KAFKA_UI_HOST}:30296"
-echo "Authorization debug: http://${KAFKA_UI_HOST}:30296/api/authorization"
+echo "URL: https://${KAFKA_UI_HOST}"
+echo "Authorization debug: https://${KAFKA_UI_HOST}/api/authorization"
 echo "Logs: kubectl logs -n ${NAMESPACE} deployment/kafka-ui -f"
