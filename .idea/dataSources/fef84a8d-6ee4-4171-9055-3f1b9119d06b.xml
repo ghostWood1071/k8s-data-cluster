@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <dataSource name="hive@master">
-  <database-model serializer="dbm" dbms="POSTGRES" family-id="POSTGRES" format-version="4.54">
+  <database-model serializer="dbm" dbms="POSTGRES" family-id="POSTGRES" format-version="4.55">
     <root id="1">
       <DateStyle>mdy</DateStyle>
-      <IntrospectionStateNumber>767</IntrospectionStateNumber>
+      <IntrospectionStateNumber>770</IntrospectionStateNumber>
       <ServerVersion>15.17</ServerVersion>
-      <StartupTime>1778996241</StartupTime>
+      <StartupTime>1782304940</StartupTime>
       <TimeZones>true ACDT
 true ACSST
 false ACST
@@ -703,7 +703,7 @@ true posixrules
 13273||10|C|G
 13273||-9223372036854775808|U|G
 13273||10|U|G</Grants>
-      <IntrospectionStateNumber>767</IntrospectionStateNumber>
+      <IntrospectionStateNumber>770</IntrospectionStateNumber>
       <ObjectId>16384</ObjectId>
       <OwnerName>hive</OwnerName>
     </database>
@@ -4126,11 +4126,12 @@ true posixrules
       <AutoIntrospectionLevel>3</AutoIntrospectionLevel>
       <Comment>standard public schema</Comment>
       <Current>1</Current>
-      <LastIntrospectionL1Xid>767</LastIntrospectionL1Xid>
-      <LastIntrospectionL2Xid>767</LastIntrospectionL2Xid>
-      <LastIntrospectionL3Xid>767</LastIntrospectionL3Xid>
+      <LastIntrospectionL1Xid>770</LastIntrospectionL1Xid>
+      <LastIntrospectionL2Xid>770</LastIntrospectionL2Xid>
+      <LastIntrospectionL3Xid>770</LastIntrospectionL3Xid>
       <LastIntrospectionLevel>3</LastIntrospectionLevel>
-      <LastIntrospectionLocalTimestamp>2026-05-30.11:49:09</LastIntrospectionLocalTimestamp>
+      <LastIntrospectionLocalTimestamp>2026-07-11.08:40:16</LastIntrospectionLocalTimestamp>
+      <LastIntrospectionVersion>260210</LastIntrospectionVersion>
       <ObjectId>2200</ObjectId>
       <StateNumber>518</StateNumber>
       <OwnerName>pg_database_owner</OwnerName>
