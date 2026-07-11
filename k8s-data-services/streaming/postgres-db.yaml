@@ -1,13 +1,19 @@
+# =========================
+# PostgreSQL for demo/source database
+# =========================
 apiVersion: v1
 kind: Service
 metadata:
   name: postgresdb
   namespace: streaming
+  labels:
+    app: postgresdb
 spec:
   selector:
     app: postgresdb
   ports:
-    - port: 5432
+    - name: postgres
+      port: 5432
       targetPort: 5432
   type: ClusterIP
 
@@ -31,6 +37,8 @@ kind: Deployment
 metadata:
   name: postgresdb
   namespace: streaming
+  labels:
+    app: postgresdb
 spec:
   replicas: 1
   selector:
@@ -44,6 +52,11 @@ spec:
       containers:
         - name: postgresdb
           image: postgres:15
+          imagePullPolicy: IfNotPresent
+          args:
+            - postgres
+            - -c
+            - wal_level=logical
           env:
             - name: POSTGRES_USER
               value: "postgres"
@@ -51,12 +64,11 @@ spec:
               value: "postgres"
             - name: POSTGRES_DB
               value: "demo"
-            - name: POSTGRES_INITDB_WAL_LEVEL
-              value: "logical"
             - name: PGDATA
               value: /var/lib/postgresql/data/pgdata
           ports:
-            - containerPort: 5432
+            - name: postgres
+              containerPort: 5432
           volumeMounts:
             - name: postgres-storage
               mountPath: /var/lib/postgresql/data

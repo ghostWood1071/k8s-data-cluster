@@ -1,0 +1,37 @@
+clusterName: openmetadata-opensearch
+nodeGroup: master
+
+singleNode: true
+replicas: 1
+
+roles:
+  - master
+  - ingest
+  - data
+  - remote_cluster_client
+
+opensearchJavaOpts: "-Xms1g -Xmx1g"
+
+extraEnvs:
+  - name: OPENSEARCH_INITIAL_ADMIN_PASSWORD
+    value: "OpenSearchAdmin@123"
+
+config:
+  opensearch.yml: |
+    cluster.name: openmetadata-opensearch
+    network.host: 0.0.0.0
+    discovery.type: single-node
+    plugins.security.disabled: true
+
+persistence:
+  enabled: true
+  storageClass: longhorn
+  size: 20Gi
+
+resources:
+  requests:
+    cpu: 500m
+    memory: 2Gi
+  limits:
+    cpu: "2"
+    memory: 4Gi

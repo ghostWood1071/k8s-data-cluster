@@ -1,0 +1,16 @@
+{
+  "clientId": "openmetadata",
+  "enabled": true,
+  "protocol": "openid-connect",
+  "publicClient": false,
+  "standardFlowEnabled": true,
+  "directAccessGrantsEnabled": false,
+  "serviceAccountsEnabled": false,
+  "redirectUris": [
+    "https://openmetadata.datalabutehy.com/callback",
+    "https://openmetadata.datalabutehy.com/api/v1/callback"
+  ],
+  "webOrigins": [
+    "https://openmetadata.datalabutehy.com"
+  ]
+}

@@ -1,0 +1,84 @@
+replicaCount: 1
+
+image:
+  pullPolicy: IfNotPresent
+
+openmetadata:
+  config:
+    database:
+      enabled: true
+      host: openmetadata-postgresql.openmetadata.svc.cluster.local
+      port: 5432
+      driverClass: org.postgresql.Driver
+      dbScheme: postgresql
+      databaseName: openmetadata_db
+      auth:
+        username: openmetadata_user
+        password:
+          secretRef: openmetadata-postgresql-secret
+          secretKey: password
+    openmetadata:
+      host: "0.0.0.0"
+      port: 8585
+      adminPort: 8586
+
+    elasticsearch:
+      enabled: true
+      host: opensearch-cluster-master.openmetadata.svc.cluster.local
+      port: 9200
+      scheme: http
+      searchType: opensearch
+      connectionTimeoutSecs: 5
+      socketTimeoutSecs: 60
+      keepAliveTimeoutSecs: 600
+      batchSize: 10
+      auth:
+        enabled: false
+
+    pipelineServiceClientConfig:
+      enabled: true
+      type: k8s
+      className: org.openmetadata.service.clients.pipeline.k8s.K8sPipelineClient
+      metadataApiEndpoint: http://openmetadata.openmetadata.svc.cluster.local:8585/api
+      k8s:
+        serviceAccountName: openmetadata-ingestion
+        ingestionImage: docker.getcollate.io/openmetadata/ingestion-base:1.13.1
+        imagePullPolicy: IfNotPresent
+        useOMJobOperator: false
+        rbac:
+          enabled: true
+
+omjobOperator:
+  enabled: false
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "100m"
+  hosts:
+    - host: openmetadata.k8s.tailnet
+      paths:
+        - path: /callback
+          pathType: Exact
+          serviceName: openmetadata-callback-proxy
+          servicePort: 80
+        - path: /
+          pathType: Prefix
+    - host: openmetadata.datalabutehy.com
+      paths:
+        - path: /callback
+          pathType: Exact
+          serviceName: openmetadata-callback-proxy
+          servicePort: 80
+        - path: /
+          pathType: Prefix
+  tls: []
+  
+resources:
+  requests:
+    cpu: 500m
+    memory: 1Gi
+  limits:
+    cpu: "2"
+    memory: 4Gi

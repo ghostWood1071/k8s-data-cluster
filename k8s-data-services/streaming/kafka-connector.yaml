@@ -1,17 +1,21 @@
 # =========================
-# Cluster Service - Connector
+# Kafka Connect Service
 # =========================
 apiVersion: v1
 kind: Service
 metadata:
   name: kafka-connect
   namespace: streaming
+  labels:
+    app: kafka-connect
 spec:
   selector:
     app: kafka-connect
   ports:
     - name: connector
       port: 8083
+      targetPort: 8083
+  type: ClusterIP
 
 ---
 apiVersion: apps/v1
@@ -19,6 +23,8 @@ kind: Deployment
 metadata:
   name: kafka-connect
   namespace: streaming
+  labels:
+    app: kafka-connect
 spec:
   replicas: 1
   selector:
@@ -32,9 +38,13 @@ spec:
       containers:
         - name: kafka-connect
           image: debezium/connect:2.6
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: connector
+              containerPort: 8083
           env:
             - name: BOOTSTRAP_SERVERS
-              value: "kafka-broker:9092"
+              value: "kafka-broker.streaming.svc.cluster.local:9092"
             - name: GROUP_ID
               value: "1"
             - name: CONFIG_STORAGE_TOPIC

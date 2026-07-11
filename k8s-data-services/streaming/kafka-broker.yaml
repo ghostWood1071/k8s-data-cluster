@@ -1,11 +1,13 @@
 # =========================
-# Headless Service - Broker
+# Headless Service - Kafka Broker
 # =========================
 apiVersion: v1
 kind: Service
 metadata:
   name: kafka-broker
   namespace: streaming
+  labels:
+    app: kafka-broker
 spec:
   clusterIP: None
   selector:
@@ -13,16 +15,19 @@ spec:
   ports:
     - name: broker
       port: 9092
+      targetPort: 9092
 
 ---
 # =========================
-# StatefulSet - Broker
+# StatefulSet - Kafka Broker
 # =========================
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: kafka-broker
   namespace: streaming
+  labels:
+    app: kafka-broker
 spec:
   serviceName: kafka-broker
   replicas: 1
@@ -37,6 +42,10 @@ spec:
       containers:
         - name: kafka
           image: chiennc4805/kafka-broker:1.0.1
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: broker
+              containerPort: 9092
           volumeMounts:
             - name: data
               mountPath: /var/lib/kafka/data

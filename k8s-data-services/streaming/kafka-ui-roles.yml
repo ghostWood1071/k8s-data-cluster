@@ -1,0 +1,94 @@
+# File này được giữ lại để tham khảo quyền RBAC.
+# Bản deploy mới KHÔNG dùng file này nữa.
+# RBAC đang nằm trực tiếp trong ConfigMap application.yml của kafka-ui-keycloak-rbac.yaml
+# để tránh lỗi permissions rỗng khi mount roles.yml rời.
+
+rbac:
+  roles:
+    - name: kafka-viewer
+      clusters:
+        - streaming-cluster
+      subjects:
+        - provider: oauth
+          type: role
+          value: kafka-viewer
+      permissions:
+        - resource: applicationconfig
+          actions: [view]
+        - resource: clusterconfig
+          actions: [view]
+        - resource: topic
+          value: ".*"
+          actions: [view, messages_read, analysis_view]
+        - resource: consumer
+          value: ".*"
+          actions: [view]
+        - resource: connect
+          value: ".*"
+          actions: [view]
+        - resource: connector
+          value: ".*"
+          actions: [view]
+        - resource: acl
+          actions: [view]
+
+    - name: kafka-operator
+      clusters:
+        - streaming-cluster
+      subjects:
+        - provider: oauth
+          type: role
+          value: kafka-operator
+      permissions:
+        - resource: applicationconfig
+          actions: [view]
+        - resource: clusterconfig
+          actions: [view]
+        - resource: topic
+          value: ".*"
+          actions: [view, create, edit, messages_read, messages_produce, messages_delete, analysis_run, analysis_view]
+        - resource: consumer
+          value: ".*"
+          actions: [view, delete, reset_offsets]
+        - resource: connect
+          value: ".*"
+          actions: [view, create, edit, delete, operate, reset_offsets]
+        - resource: connector
+          value: ".*"
+          actions: [view, create, edit, delete, operate, reset_offsets]
+        - resource: acl
+          actions: [view]
+
+    - name: kafka-admin
+      clusters:
+        - streaming-cluster
+      subjects:
+        - provider: oauth
+          type: role
+          value: kafka-admin
+      permissions:
+        - resource: applicationconfig
+          actions: all
+        - resource: clusterconfig
+          actions: all
+        - resource: topic
+          value: ".*"
+          actions: all
+        - resource: consumer
+          value: ".*"
+          actions: all
+        - resource: schema
+          value: ".*"
+          actions: all
+        - resource: connect
+          value: ".*"
+          actions: all
+        - resource: connector
+          value: ".*"
+          actions: all
+        - resource: ksql
+          actions: all
+        - resource: acl
+          actions: all
+        - resource: audit
+          actions: all
