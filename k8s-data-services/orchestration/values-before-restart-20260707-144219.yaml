@@ -18,15 +18,15 @@ createUserJob:
 dags:
   gitSync:
     branch: master
-    enabled: true
+    enabled: false
     period: 30s
     repo: https://github.com/ghostWood1071/native-data-platform.git
     rev: HEAD
-    subPath: orchestration/dags
+    subPath: orchestration/dags/
   persistence:
     accessMode: ReadWriteMany
     enabled: true
-    size: 10Gi
+    size: 2Gi
     storageClassName: longhorn
 
 data:
@@ -38,9 +38,9 @@ data:
     protocol: postgresql
     user: postgres
 
-defaultAirflowRepository: linhdv2312/airflow
-defaultAirflowTag: 2.10.3-jars
-airflowVersion: 2.10.3
+defaultAirflowRepository: ghostwood/airflow
+defaultAirflowTag: 3.0.0
+airflowVersion: 2.11.3
 executor: KubernetesExecutor
 images:
   airflow:
@@ -97,6 +97,8 @@ triggerer:
   enabled: true
   persistence:
     enabled: false
+    size: 1Gi
+    storageClassName: longhorn
 webserver:
   defaultUser:
     enabled: true
@@ -105,3 +107,5 @@ webserver:
 worker:
   persistence:
     enabled: false
+    size: 2Gi
+    storageClassName: longhorn
