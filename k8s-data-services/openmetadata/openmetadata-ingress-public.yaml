@@ -1,0 +1,44 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: openmetadata
+  namespace: openmetadata
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "100m"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: openmetadata.k8s.tailnet
+      http:
+        paths:
+          - path: /callback
+            pathType: Exact
+            backend:
+              service:
+                name: openmetadata-callback-proxy
+                port:
+                  number: 80
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: openmetadata
+                port:
+                  number: 8585
+    - host: openmetadata.datalabutehy.com
+      http:
+        paths:
+          - path: /callback
+            pathType: Exact
+            backend:
+              service:
+                name: openmetadata-callback-proxy
+                port:
+                  number: 80
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: openmetadata
+                port:
+                  number: 8585

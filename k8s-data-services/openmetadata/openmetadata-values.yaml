@@ -59,6 +59,18 @@ ingress:
   hosts:
     - host: openmetadata.k8s.tailnet
       paths:
+        - path: /callback
+          pathType: Exact
+          serviceName: openmetadata-callback-proxy
+          servicePort: 80
+        - path: /
+          pathType: Prefix
+    - host: openmetadata.datalabutehy.com
+      paths:
+        - path: /callback
+          pathType: Exact
+          serviceName: openmetadata-callback-proxy
+          servicePort: 80
         - path: /
           pathType: Prefix
   tls: []
