@@ -4,14 +4,99 @@ from __future__ import annotations
 
 import argparse
 import json
+import logging
 import os
+import sys
 import zlib
+from pathlib import Path
 from typing import Any
 
 import psycopg2
 from psycopg2.extras import RealDictCursor
 
 from airflow.providers.apache.spark.operators.spark_submit import SparkSubmitOperator
+
+
+class TeeStream:
+
+    def __init__(self, *streams):
+        self.streams = streams
+
+    def write(self, data):
+        for stream in self.streams:
+            try:
+                stream.write(data)
+                stream.flush()
+            except Exception:
+                pass
+
+    def flush(self):
+        for stream in self.streams:
+            try:
+                stream.flush()
+            except Exception:
+                pass
+
+
+def setup_airflow_ui_log(dag_id: str, task_id: str, run_id: str | None) -> Path:
+
+    base_log_folder = (
+        os.getenv("AIRFLOW__LOGGING__BASE_LOG_FOLDER")
+        or os.getenv("AIRFLOW_BASE_LOG_FOLDER")
+        or "/opt/airflow/logs"
+    )
+
+    safe_run_id = run_id or os.getenv("AIRFLOW_CTX_DAG_RUN_ID") or "manual__unknown"
+
+    try_number = (
+        os.getenv("AIRFLOW_CTX_TRY_NUMBER")
+        or os.getenv("AIRFLOW_TRY_NUMBER")
+        or "1"
+    )
+
+    map_index = os.getenv("AIRFLOW_CTX_MAP_INDEX", "-1")
+
+    log_dir = (
+        Path(base_log_folder)
+        / f"dag_id={dag_id}"
+        / f"run_id={safe_run_id}"
+        / f"task_id={task_id}"
+    )
+
+    if map_index not in ("", "-1", "None", None):
+        log_dir = log_dir / f"map_index={map_index}"
+
+    log_dir.mkdir(parents=True, exist_ok=True)
+
+    log_file = log_dir / f"attempt={try_number}.log"
+
+    file_stream = open(log_file, "a", encoding="utf-8", buffering=1)
+
+    sys.stdout = TeeStream(sys.stdout, file_stream)
+    sys.stderr = TeeStream(sys.stderr, file_stream)
+
+    file_handler = logging.FileHandler(log_file, encoding="utf-8")
+    file_handler.setLevel(logging.INFO)
+    file_handler.setFormatter(
+        logging.Formatter(
+            "[%(asctime)s] {%(filename)s:%(lineno)d} %(levelname)s - %(message)s"
+        )
+    )
+
+    root_logger = logging.getLogger()
+    root_logger.setLevel(logging.INFO)
+    root_logger.addHandler(file_handler)
+
+    logging.getLogger("airflow").addHandler(file_handler)
+    logging.getLogger("airflow.providers.apache.spark").addHandler(file_handler)
+
+    print("==================================================")
+    print("AIRFLOW UI LOG ENABLED")
+    print("base_log_folder:", base_log_folder)
+    print("log_file:", log_file)
+    print("==================================================")
+
+    return log_file
 
 
 def normalize_db_url(url: str) -> str:
@@ -63,7 +148,9 @@ def load_serialized_dag(dag_id: str) -> dict[str, Any]:
         compressed = row.get("data_compressed")
 
         if compressed is None:
-            raise RuntimeError(f"serialized_dag.data and data_compressed are both null for dag_id={dag_id}")
+            raise RuntimeError(
+                f"serialized_dag.data and data_compressed are both null for dag_id={dag_id}"
+            )
 
         if isinstance(compressed, memoryview):
             compressed = compressed.tobytes()
@@ -145,6 +232,12 @@ def parse_args():
 
 def main() -> int:
     args = parse_args()
+
+    setup_airflow_ui_log(
+        dag_id=args.dag_id,
+        task_id=args.task_id,
+        run_id=args.run_id,
+    )
 
     print("==================================================")
     print("JSON SQL RUNTIME LOG START")
