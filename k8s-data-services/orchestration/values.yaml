@@ -38,9 +38,20 @@ postgresql:
       size: 8Gi
 
 defaultAirflowRepository: linhdv2312/airflow
-defaultAirflowTag: "2.10.3"
+defaultAirflowTag: "2.10.3-jars"
 airflowVersion: "2.10.3"
 
+images:
+  airflow:
+    pullPolicy: Always
+
+extraEnv: |
+  - name: PYTHONPATH
+    value: /opt/airflow/dags/json-sql-compiler:/opt/airflow/config
+
+  - name: AIRFLOW__KUBERNETES_EXECUTOR__POD_MUTATION_HOOK
+    value: airflow_local_settings.pod_mutation_hook
+    
 config:
   core:
     executor: KubernetesExecutor
@@ -69,12 +80,7 @@ dags:
     size: 10Gi
 
   gitSync:
-    enabled: true
-    repo: "https://github.com/ghostWood1071/native-data-platform.git"
-    branch: "master"
-    rev: HEAD
-    subPath: "orchestration/dags"
-    period: 30s
+    enabled: False
 
 logs:
   persistence:
