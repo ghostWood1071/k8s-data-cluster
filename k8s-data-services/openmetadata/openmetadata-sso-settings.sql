@@ -96,6 +96,7 @@ set json = $${
     "preferred_username",
     "sub"
   ],
+  "jwtTeamClaimMapping": "groups",
   "forceSecureSessionCookie": true,
   "tokenValidationAlgorithm": "RS256",
   "jwtPrincipalClaimsMapping": []
