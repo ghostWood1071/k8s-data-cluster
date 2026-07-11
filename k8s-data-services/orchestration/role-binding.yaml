@@ -5,9 +5,9 @@ metadata:
   namespace: compute
 subjects:
   - kind: ServiceAccount
-    name: airflow-worker          
-    namespace: orchestration      
+    name: airflow-worker
+    namespace: orchestration
 roleRef:
   kind: Role
-  name: spark-role               
+  name: spark-role
   apiGroup: rbac.authorization.k8s.io

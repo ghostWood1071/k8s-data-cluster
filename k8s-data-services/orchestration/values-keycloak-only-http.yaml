@@ -1,5 +1,5 @@
-# Overlay Airflow trong namespace orchestration.
-# Không deploy hoặc chỉnh sửa tài nguyên Keycloak.
+# Airflow overlay for namespace orchestration.
+# This file does not deploy or modify Keycloak resources.
 webserverSecretKeySecretName: airflow-webserver-secret
 
 ingress:
