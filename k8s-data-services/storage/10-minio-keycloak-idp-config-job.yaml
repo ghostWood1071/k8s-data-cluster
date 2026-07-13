@@ -1,0 +1,85 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: minio-keycloak-idp-config
+  namespace: storage
+spec:
+  backoffLimit: 1
+  template:
+    metadata:
+      labels:
+        app: minio-keycloak-idp-config
+    spec:
+      restartPolicy: Never
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: mc
+          image: quay.io/minio/mc:RELEASE.2025-04-16T18-13-26Z
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: HOME
+              value: /tmp
+            - name: MINIO_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: minio-creds
+                  key: MINIO_ACCESS_KEY
+            - name: MINIO_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: minio-creds
+                  key: MINIO_SECRET_KEY
+            - name: MINIO_IDENTITY_OPENID_CONFIG_URL
+              valueFrom:
+                secretKeyRef:
+                  name: minio-oidc-config
+                  key: MINIO_IDENTITY_OPENID_CONFIG_URL
+            - name: MINIO_IDENTITY_OPENID_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: minio-oidc-config
+                  key: MINIO_IDENTITY_OPENID_CLIENT_ID
+            - name: MINIO_IDENTITY_OPENID_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: minio-oidc-config
+                  key: MINIO_IDENTITY_OPENID_CLIENT_SECRET
+            - name: MINIO_IDENTITY_OPENID_CLAIM_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: minio-oidc-config
+                  key: MINIO_IDENTITY_OPENID_CLAIM_NAME
+            - name: MINIO_IDENTITY_OPENID_SCOPES
+              valueFrom:
+                secretKeyRef:
+                  name: minio-oidc-config
+                  key: MINIO_IDENTITY_OPENID_SCOPES
+          securityContext:
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+            runAsUser: 1000
+            capabilities:
+              drop:
+                - ALL
+          command:
+            - sh
+            - -c
+            - |
+              set -eu
+              mc alias set local http://minio-svc-private.storage.svc.cluster.local:9000 "$MINIO_ACCESS_KEY" "$MINIO_SECRET_KEY"
+              mc admin config reset local identity_openid || true
+              mc admin config reset local identity_openid:DYNAMIC || true
+              mc admin config set local identity_openid \
+                config_url="$MINIO_IDENTITY_OPENID_CONFIG_URL" \
+                client_id="$MINIO_IDENTITY_OPENID_CLIENT_ID" \
+                client_secret="$MINIO_IDENTITY_OPENID_CLIENT_SECRET" \
+                claim_name="$MINIO_IDENTITY_OPENID_CLAIM_NAME" \
+                scopes="$MINIO_IDENTITY_OPENID_SCOPES" \
+                redirect_uri="https://minio.datalabutehy.com/oauth_callback" \
+                vendor="keycloak" \
+                keycloak_realm="data-team" \
+                keycloak_admin_url="https://keycloak.datalabutehy.com/admin/realms/data-team" \
+                display_name="Keycloak data-team"
+              mc admin config get local identity_openid

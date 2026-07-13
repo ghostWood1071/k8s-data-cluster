@@ -18,20 +18,27 @@ spec:
     spec:
       containers:
       - name: minio
-        image: minio/minio:latest
+        image: quay.io/minio/minio:RELEASE.2025-04-08T15-41-24Z
+        envFrom:
+          - secretRef:
+              name: minio-oidc-config
         env:
-        - name: MINIO_ACCESS_KEY
+        - name: MINIO_ROOT_USER
           valueFrom:
             secretKeyRef:
               name: minio-creds
               key: MINIO_ACCESS_KEY
-        - name: MINIO_SECRET_KEY
+        - name: MINIO_ROOT_PASSWORD
           valueFrom:
             secretKeyRef:
               name: minio-creds
               key: MINIO_SECRET_KEY
+        - name: MINIO_SERVER_URL
+          value: "http://minio-svc-private.storage.svc.cluster.local:9000"
+        - name: MINIO_BROWSER_REDIRECT_URL
+          value: "http://minio-svc-private.storage.svc.cluster.local:9000"
         - name: MINIO_DOMAIN
-          value: "minio.miniodemo.xyz"
+          value: "minio.datalabutehy.com"
         args:
         - server
         - http://minio-0.minio.storage.svc.cluster.local/data

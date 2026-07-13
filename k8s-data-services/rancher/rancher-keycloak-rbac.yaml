@@ -1,0 +1,43 @@
+apiVersion: management.cattle.io/v3
+kind: GlobalRoleBinding
+metadata:
+  name: keycloakoidc-rancher-admins-admin
+  labels:
+    app.kubernetes.io/name: rancher-keycloak-rbac
+    app.kubernetes.io/part-of: rancher-auth
+globalRoleName: admin
+groupPrincipalName: keycloakoidc_group://rancher-admins
+---
+apiVersion: management.cattle.io/v3
+kind: GlobalRoleBinding
+metadata:
+  name: keycloakoidc-rancher-users-user-base
+  labels:
+    app.kubernetes.io/name: rancher-keycloak-rbac
+    app.kubernetes.io/part-of: rancher-auth
+globalRoleName: user-base
+groupPrincipalName: keycloakoidc_group://rancher-users
+---
+apiVersion: management.cattle.io/v3
+kind: ClusterRoleTemplateBinding
+metadata:
+  name: keycloakoidc-rancher-cluster-owners-local-owner
+  namespace: local
+  labels:
+    app.kubernetes.io/name: rancher-keycloak-rbac
+    app.kubernetes.io/part-of: rancher-auth
+clusterName: local
+groupPrincipalName: keycloakoidc_group://rancher-cluster-owners
+roleTemplateName: cluster-owner
+---
+apiVersion: management.cattle.io/v3
+kind: ClusterRoleTemplateBinding
+metadata:
+  name: keycloakoidc-rancher-users-local-member
+  namespace: local
+  labels:
+    app.kubernetes.io/name: rancher-keycloak-rbac
+    app.kubernetes.io/part-of: rancher-auth
+clusterName: local
+groupPrincipalName: keycloakoidc_group://rancher-users
+roleTemplateName: cluster-member

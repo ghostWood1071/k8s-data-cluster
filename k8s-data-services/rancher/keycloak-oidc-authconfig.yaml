@@ -1,0 +1,25 @@
+apiVersion: management.cattle.io/v3
+kind: AuthConfig
+metadata:
+  name: keycloakoidc
+  labels:
+    app.kubernetes.io/name: rancher-keycloak-oidc
+    app.kubernetes.io/part-of: rancher-auth
+type: keyCloakOIDCConfig
+enabled: true
+accessMode: unrestricted
+allowedPrincipalIds: []
+clientId: rancher
+# deploy-rancher-keycloak.sh injects the real client secret at deploy time.
+clientSecret: CHANGE_ME
+rancherUrl: https://rancher.datalabutehy.com/verify-auth
+issuer: https://keycloak.datalabutehy.com/realms/data-team
+authEndpoint: https://keycloak.datalabutehy.com/realms/data-team/protocol/openid-connect/auth
+tokenEndpoint: https://keycloak.datalabutehy.com/realms/data-team/protocol/openid-connect/token
+userInfoEndpoint: https://keycloak.datalabutehy.com/realms/data-team/protocol/openid-connect/userinfo
+jwksUrl: https://keycloak.datalabutehy.com/realms/data-team/protocol/openid-connect/certs
+scopes: "openid profile email"
+displayNameField: name
+groupsField: groups
+uidField: sub
+userNameField: preferred_username

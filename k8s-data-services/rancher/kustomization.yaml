@@ -1,0 +1,8 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - rancher-keycloak-rbac.yaml
+
+# keycloak-oidc-authconfig.yaml is a template because it needs the real
+# Keycloak client secret. Use ./deploy-rancher-keycloak.sh to render/apply it.

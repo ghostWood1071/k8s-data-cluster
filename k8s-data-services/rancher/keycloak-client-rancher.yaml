@@ -1,0 +1,50 @@
+# Keycloak reference for Rancher OIDC.
+# Realm: data-team
+# Client: rancher
+realm: data-team
+clientId: rancher
+name: Rancher
+protocol: openid-connect
+publicClient: false
+standardFlowEnabled: true
+directAccessGrantsEnabled: false
+serviceAccountsEnabled: false
+redirectUris:
+  - https://rancher.datalabutehy.com/verify-auth
+webOrigins:
+  - https://rancher.datalabutehy.com
+attributes:
+  pkce.code.challenge.method: ""
+protocolMappers:
+  - name: groups
+    protocol: openid-connect
+    protocolMapper: oidc-group-membership-mapper
+    config:
+      full.path: "false"
+      claim.name: groups
+      jsonType.label: String
+      multivalued: "true"
+      id.token.claim: "true"
+      access.token.claim: "true"
+      userinfo.token.claim: "true"
+clientRoles:
+  - rancher-admin
+  - rancher-user
+  - rancher-cluster-owner
+groups:
+  rancher-admins:
+    rancherClientRoles:
+      - rancher-admin
+    rancherPermission:
+      - globalRoleName: admin
+  rancher-users:
+    rancherClientRoles:
+      - rancher-user
+    rancherPermission:
+      - globalRoleName: user-base
+      - localClusterRoleTemplate: cluster-member
+  rancher-cluster-owners:
+    rancherClientRoles:
+      - rancher-cluster-owner
+    rancherPermission:
+      - localClusterRoleTemplate: cluster-owner

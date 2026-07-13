@@ -1,0 +1,111 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: keycloak-minio-client-setup
+  namespace: storage
+  labels:
+    app: minio
+    component: keycloak-oidc-setup
+spec:
+  backoffLimit: 3
+  template:
+    metadata:
+      labels:
+        app: minio
+        component: keycloak-oidc-setup
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: keycloak-minio-client-setup
+          image: quay.io/keycloak/keycloak:26.2
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - secretRef:
+                name: keycloak-minio-setup
+            - secretRef:
+                name: minio-oidc-config
+          command:
+            - /bin/sh
+            - -ec
+            - |
+              KCADM=/opt/keycloak/bin/kcadm.sh
+              REALM="${KEYCLOAK_TARGET_REALM}"
+              CLIENT_ID="${MINIO_CLIENT_ID}"
+              CLIENT_SECRET="${MINIO_IDENTITY_OPENID_CLIENT_SECRET}"
+              MINIO_CALLBACK="${MINIO_PUBLIC_URL}/oauth_callback"
+
+              "${KCADM}" config credentials \
+                --server "${KEYCLOAK_URL}" \
+                --realm "${KEYCLOAK_ADMIN_REALM}" \
+                --user "${KEYCLOAK_ADMIN_USER}" \
+                --password "${KEYCLOAK_ADMIN_PASSWORD}"
+
+              CLIENT_UUID="$("${KCADM}" get clients -r "${REALM}" -q clientId="${CLIENT_ID}" --fields id --format csv --noquotes | tail -n 1)"
+              if [ -z "${CLIENT_UUID}" ]; then
+                "${KCADM}" create clients -r "${REALM}" \
+                  -s clientId="${CLIENT_ID}" \
+                  -s name="MinIO" \
+                  -s enabled=true \
+                  -s protocol=openid-connect \
+                  -s publicClient=false \
+                  -s standardFlowEnabled=true \
+                  -s directAccessGrantsEnabled=false \
+                  -s serviceAccountsEnabled=false \
+                  -s rootUrl="${MINIO_PUBLIC_URL}" \
+                  -s baseUrl="${MINIO_PUBLIC_URL}" \
+                  -s adminUrl="${MINIO_PUBLIC_URL}" \
+                  -s 'redirectUris=["'"${MINIO_CALLBACK}"'"]' \
+                  -s 'webOrigins=["'"${MINIO_PUBLIC_URL}"'"]'
+                CLIENT_UUID="$("${KCADM}" get clients -r "${REALM}" -q clientId="${CLIENT_ID}" --fields id --format csv --noquotes | tail -n 1)"
+              else
+                "${KCADM}" update clients/"${CLIENT_UUID}" -r "${REALM}" \
+                  -s enabled=true \
+                  -s protocol=openid-connect \
+                  -s publicClient=false \
+                  -s standardFlowEnabled=true \
+                  -s directAccessGrantsEnabled=false \
+                  -s serviceAccountsEnabled=false \
+                  -s rootUrl="${MINIO_PUBLIC_URL}" \
+                  -s baseUrl="${MINIO_PUBLIC_URL}" \
+                  -s adminUrl="${MINIO_PUBLIC_URL}" \
+                  -s 'redirectUris=["'"${MINIO_CALLBACK}"'"]' \
+                  -s 'webOrigins=["'"${MINIO_PUBLIC_URL}"'"]'
+              fi
+
+              "${KCADM}" update clients/"${CLIENT_UUID}" -r "${REALM}" -s secret="${CLIENT_SECRET}"
+
+              for ROLE in consoleAdmin readwrite readonly writeonly diagnostics; do
+                if ! "${KCADM}" get clients/"${CLIENT_UUID}"/roles/"${ROLE}" -r "${REALM}" >/dev/null 2>&1; then
+                  "${KCADM}" create clients/"${CLIENT_UUID}"/roles -r "${REALM}" \
+                    -s name="${ROLE}" \
+                    -s description="MinIO policy role: ${ROLE}"
+                fi
+              done
+
+              for ROLE in consoleAdmin readwrite readonly writeonly diagnostics; do
+                GROUP_NAME="minio-${ROLE}"
+                GROUP_ID="$("${KCADM}" get groups -r "${REALM}" -q search="${GROUP_NAME}" --fields id,name --format csv --noquotes | grep ',${GROUP_NAME}$' | head -n 1 | cut -d, -f1)"
+                if [ -z "${GROUP_ID}" ]; then
+                  "${KCADM}" create groups -r "${REALM}" -s name="${GROUP_NAME}" || true
+                  GROUP_ID="$("${KCADM}" get groups -r "${REALM}" -q search="${GROUP_NAME}" --fields id,name --format csv --noquotes | grep ',${GROUP_NAME}$' | head -n 1 | cut -d, -f1)"
+                fi
+                "${KCADM}" add-roles -r "${REALM}" --gid "${GROUP_ID}" --cclientid "${CLIENT_ID}" --rolename "${ROLE}" || true
+              done
+
+              MAPPER_ID="$("${KCADM}" get clients/"${CLIENT_UUID}"/protocol-mappers/models -r "${REALM}" --fields id,name --format csv --noquotes | grep ',minio-policy$' | head -n 1 | cut -d, -f1)"
+              if [ -n "${MAPPER_ID}" ]; then
+                "${KCADM}" delete clients/"${CLIENT_UUID}"/protocol-mappers/models/"${MAPPER_ID}" -r "${REALM}"
+              fi
+              "${KCADM}" create clients/"${CLIENT_UUID}"/protocol-mappers/models -r "${REALM}" \
+                -s name="minio-policy" \
+                -s protocol="openid-connect" \
+                -s protocolMapper="oidc-usermodel-client-role-mapper" \
+                -s 'config."usermodel.clientRoleMapping.clientId"="minio"' \
+                -s 'config."claim.name"="policy"' \
+                -s 'config."jsonType.label"="String"' \
+                -s 'config."multivalued"="true"' \
+                -s 'config."access.token.claim"="true"' \
+                -s 'config."id.token.claim"="true"' \
+                -s 'config."userinfo.token.claim"="true"'
+
+              echo "Keycloak client ${CLIENT_ID} configured in realm ${REALM}."
