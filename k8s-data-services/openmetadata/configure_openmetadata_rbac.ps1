@@ -123,7 +123,7 @@ function Ensure-Policy {
         description = "Allow all metadata operations on all resources."
         effect = "allow"
         operations = @("All")
-        resources = @("*")
+        resources = @("All")
       }
     )
   }

@@ -1,131 +1,55 @@
+begin;
+
 update openmetadata_settings
-set json = $${
-  "clientId": "openmetadata",
-  "provider": "custom-oidc",
-  "authority": "https://keycloak.datalabutehy.com/realms/data-team",
+set json = '
+{
+  "enabled": true,
   "clientType": "confidential",
-  "callbackUrl": "https://openmetadata.datalabutehy.com/callback",
-  "providerName": "Keycloak",
-  "responseType": "code",
-  "publicKeyUrls": [
+  "provider": "custom-oidc",
+  "publicKeys": [
+    "https://openmetadata.datalabutehy.com/api/v1/system/config/jwks",
     "https://keycloak.datalabutehy.com/realms/data-team/protocol/openid-connect/certs"
   ],
+  "authority": "https://keycloak.datalabutehy.com/realms/data-team/protocol/openid-connect/auth",
+  "clientId": "openmetadata",
+  "callbackUrl": "https://openmetadata.datalabutehy.com/callback",
   "enableSelfSignup": true,
-  "ldapConfiguration": {
-    "isFullDn": false,
-    "sslEnabled": false,
-    "userBaseDN": "",
-    "groupBaseDN": "",
-    "maxPoolSize": 3,
-    "dnAdminPassword": "",
-    "authRolesMapping": "",
-    "dnAdminPrincipal": "",
-    "trustStoreConfig": {
-      "hostNameConfig": {
-        "allowWildCards": false,
-        "acceptableHostNames": []
-      },
-      "trustAllConfig": {
-        "examineValidityDates": true
-      },
-      "jvmDefaultConfig": {
-        "verifyHostname": false
-      },
-      "customTrustManagerConfig": {
-        "verifyHostname": false,
-        "examineValidityDates": false
-      }
-    },
-    "authReassignRoles": [],
-    "truststoreConfigType": "TrustAll"
-  },
-  "oidcConfiguration": {
-    "id": "openmetadata",
-    "type": "customOidc",
-    "scope": "openid email profile",
-    "maxAge": "0",
-    "prompt": "consent",
-    "secret": "s3cXPbigflkwFSot9ckf4kBERTHwRWhn",
-    "tenant": "",
-    "useNonce": "true",
-    "serverUrl": "https://keycloak.datalabutehy.com",
-    "callbackUrl": "https://openmetadata.datalabutehy.com/callback",
-    "disablePkce": true,
-    "discoveryUri": "https://keycloak.datalabutehy.com/realms/data-team/.well-known/openid-configuration",
-    "maxClockSkew": "",
-    "responseType": "code",
-    "sessionExpiry": 604800,
-    "tokenValidity": 3600,
-    "preferredJwsAlgorithm": "RS256",
-    "clientAuthenticationMethod": "client_secret_post"
-  },
-  "samlConfiguration": {
-    "sp": {
-      "acs": "http://localhost:8585/api/v1/saml/acs",
-      "callback": "http://localhost:8585/saml/callback",
-      "entityId": "http://localhost:8585/api/v1/saml/metadata",
-      "spPrivateKey": "",
-      "spX509Certificate": ""
-    },
-    "idp": {
-      "nameId": "urn:oasis:names:tc:SAML:2.0:nameid-format:emailAddress",
-      "entityId": "",
-      "ssoLoginUrl": "",
-      "idpX509Certificate": ""
-    },
-    "security": {
-      "strictMode": false,
-      "validateXml": false,
-      "keyStoreAlias": "",
-      "tokenValidity": 3600,
-      "signSpMetadata": false,
-      "keyStoreFilePath": "",
-      "keyStorePassword": "",
-      "wantMessagesSigned": false,
-      "sendEncryptedNameId": false,
-      "wantAssertionsSigned": false,
-      "sendSignedAuthRequest": false,
-      "wantAssertionEncrypted": false
-    },
-    "debugMode": false,
-    "samlDisplayNameAttributes": []
-  },
-  "enableAutoRedirect": false,
-  "jwtPrincipalClaims": [
-    "email",
-    "preferred_username",
-    "sub"
-  ],
+  "jwtPrincipalClaims": ["email", "preferred_username", "sub"],
   "jwtTeamClaimMapping": "groups",
-  "forceSecureSessionCookie": true,
-  "tokenValidationAlgorithm": "RS256",
-  "jwtPrincipalClaimsMapping": []
-}$$::jsonb
+  "oidcConfiguration": {
+    "enabled": true,
+    "oidcType": "Keycloak",
+    "clientId": "openmetadata",
+    "secret": "__OPENMETADATA_OIDC_CLIENT_SECRET__",
+    "scope": "openid email profile",
+    "discoveryUri": "https://keycloak.datalabutehy.com/realms/data-team/.well-known/openid-configuration",
+    "useNonce": true,
+    "preferredJwsAlgorithm": "RS256",
+    "responseType": "code",
+    "disablePkce": true,
+    "callbackUrl": "https://openmetadata.datalabutehy.com/callback",
+    "serverUrl": "https://openmetadata.datalabutehy.com",
+    "clientAuthenticationMethod": "client_secret_post",
+    "tenant": "data-team"
+  }
+}'::jsonb
 where configtype = 'authenticationConfiguration';
 
 update openmetadata_settings
-set json = $${
-  "className": "org.openmetadata.service.security.DefaultAuthorizer",
-  "allowedDomains": [],
-  "testPrincipals": [],
-  "adminPrincipals": [
-    "admin",
-    "admin@open-metadata.org",
-    "damquangthinh",
-    "thinhquangshin",
-    "thinhquangshin@gmail.com"
-  ],
-  "principalDomain": "open-metadata.org",
-  "useRolesFromProvider": false,
-  "containerRequestFilter": "org.openmetadata.service.security.JwtFilter",
-  "enforcePrincipalDomain": false,
-  "enableSecureSocketConnection": false,
-  "allowedEmailRegistrationDomains": [
-    "all"
-  ]
-}$$::jsonb
+set json = jsonb_set(
+  jsonb_set(
+    jsonb_set(
+      jsonb_set(json, '{className}', '"org.openmetadata.service.security.DefaultAuthorizer"'::jsonb, true),
+      '{containerRequestFilter}', '"org.openmetadata.service.security.JwtFilter"'::jsonb, true
+    ),
+    '{initialAdmins}', '["temp-admin", "admin", "damquangthinh"]'::jsonb, true
+  ),
+  '{principalDomain}', '"datalabutehy.com"'::jsonb, true
+)
 where configtype = 'authorizerConfiguration';
 
-select configtype, json
+commit;
+
+select configtype, json ->> 'provider' as provider, json ->> 'clientId' as client_id, json ->> 'jwtTeamClaimMapping' as team_claim
 from openmetadata_settings
-where configtype in ('authenticationConfiguration', 'authorizerConfiguration');
+where configtype = 'authenticationConfiguration';

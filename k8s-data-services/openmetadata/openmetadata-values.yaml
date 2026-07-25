@@ -5,6 +5,50 @@ image:
 
 openmetadata:
   config:
+    authorizer:
+      className: "org.openmetadata.service.security.DefaultAuthorizer"
+      containerRequestFilter: "org.openmetadata.service.security.JwtFilter"
+      initialAdmins:
+        - "temp-admin"
+        - "admin"
+        - "damquangthinh"
+      principalDomain: "datalabutehy.com"
+      enforcePrincipalDomain: false
+    authentication:
+      enabled: true
+      clientType: confidential
+      provider: "custom-oidc"
+      publicKeys:
+        - "https://openmetadata.datalabutehy.com/api/v1/system/config/jwks"
+        - "https://keycloak.datalabutehy.com/realms/data-team/protocol/openid-connect/certs"
+      authority: "https://keycloak.datalabutehy.com/realms/data-team/protocol/openid-connect/auth"
+      clientId: "openmetadata"
+      callbackUrl: "https://openmetadata.datalabutehy.com/callback"
+      enableSelfSignup: true
+      jwtPrincipalClaims:
+        - email
+        - preferred_username
+        - sub
+      jwtTeamClaimMapping: "groups"
+      oidcConfiguration:
+        enabled: true
+        oidcType: "Keycloak"
+        clientId:
+          secretRef: oidc-secrets
+          secretKey: openmetadata-oidc-client-id
+        clientSecret:
+          secretRef: oidc-secrets
+          secretKey: openmetadata-oidc-client-secret
+        scope: "openid email profile"
+        discoveryUri: "https://keycloak.datalabutehy.com/realms/data-team/.well-known/openid-configuration"
+        useNonce: true
+        preferredJwsAlgorithm: "RS256"
+        responseType: "code"
+        disablePkce: true
+        callbackUrl: "https://openmetadata.datalabutehy.com/callback"
+        serverUrl: "https://openmetadata.datalabutehy.com"
+        clientAuthenticationMethod: "client_secret_post"
+        tenant: "data-team"
     database:
       enabled: true
       host: openmetadata-postgresql.openmetadata.svc.cluster.local
@@ -74,7 +118,7 @@ ingress:
         - path: /
           pathType: Prefix
   tls: []
-  
+
 resources:
   requests:
     cpu: 500m

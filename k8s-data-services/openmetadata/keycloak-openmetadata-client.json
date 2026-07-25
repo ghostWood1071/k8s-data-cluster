@@ -1,16 +1,25 @@
 {
   "clientId": "openmetadata",
+  "name": "OpenMetadata",
+  "description": "OpenMetadata SSO client for https://openmetadata.datalabutehy.com",
   "enabled": true,
   "protocol": "openid-connect",
   "publicClient": false,
+  "bearerOnly": false,
   "standardFlowEnabled": true,
+  "implicitFlowEnabled": false,
   "directAccessGrantsEnabled": false,
   "serviceAccountsEnabled": false,
+  "frontchannelLogout": true,
   "redirectUris": [
     "https://openmetadata.datalabutehy.com/callback",
-    "https://openmetadata.datalabutehy.com/api/v1/callback"
+    "https://openmetadata.datalabutehy.com/api/v1/callback",
+    "https://openmetadata.datalabutehy.com/auth/callback"
   ],
   "webOrigins": [
     "https://openmetadata.datalabutehy.com"
-  ]
+  ],
+  "attributes": {
+    "post.logout.redirect.uris": "https://openmetadata.datalabutehy.com/*"
+  }
 }
